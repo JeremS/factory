@@ -13,3 +13,11 @@
   (compute [_ deps]))
 
 
+(extend-type #?(:clj Object :cljs default)
+  p/Dependent
+  (dependent? [this] false)
+  (dependencies [this] #{})
+
+  p/Computation
+  (computation? [this] false)
+  (compute [this] nil))
