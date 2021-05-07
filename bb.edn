@@ -3,7 +3,9 @@
  :deps {aysylu/loom {:mvn/version "1.0.2"}}
 
  :tasks
- {:requires ([scripts :as s])
-  reveal s/reveal
-  status s/status}}
+ {:requires ([tasks :as t])
+  repl t/repl
+  reveal t/reveal
+  test-clj t/test-clj
+  test-cljs t/test-cljs}}
 
