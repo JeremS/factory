@@ -8,5 +8,5 @@
 
 
 (comment
-  (start-node-repl))
-
+  (start-node-repl)
+  :cljs/quit)

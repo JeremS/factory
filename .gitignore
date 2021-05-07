@@ -1,3 +1,6 @@
 .cpcache
-/.lsp
+.lsp
+node_modules
+out
+.cljs_node_repl
 .nrepl-port
