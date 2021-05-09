@@ -52,5 +52,8 @@
     (is (= (g/reachable-from-nodes s [:a :b]) #{:y :b :x :a}))
     (is (= (g/reachable-from-nodes p [:a :b]) #{:b :a}))
     (is (= (g/reachable-from-nodes s [:c :b]) #{:y :c :b :x}))
-    (is (= (g/reachable-from-nodes p [:c :b]) #{:c :b}))))
+    (is (= (g/reachable-from-nodes p [:c :b]) #{:c :b}))
+
+    (is (= (g/reachable-from-node s :y) #{:y}))
+    (is (= (g/reachable-from-node p :y) #{:y :a :b :c :x}))))
 
