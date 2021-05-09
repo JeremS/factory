@@ -14,10 +14,10 @@
 
 
 (extend-type #?(:clj Object :cljs default)
-  p/Dependent
+  Dependent
   (dependent? [this] false)
   (dependencies [this] #{})
 
-  p/Computation
+  Computation
   (computation? [this] false)
   (compute [this] nil))
