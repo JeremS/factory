@@ -30,11 +30,6 @@
     (vary-meta merge impl)))
 
 
-(comment
-  (def ex1 (c {:deps #{:a :b}}))
-  (p/dependencies ex1))
-
-
 (defn wrap-fn-with-aliases [f aliases]
   (fn [deps-map]
     (f (s/rename-keys deps-map aliases))))
@@ -106,7 +101,6 @@
         deps (p/dependencies computation)
         deps-map (get-deps state deps computation-name)]
     (p/compute computation deps-map)))
-
 
 
 (defn execute-computations [state computations-map computation-names]
