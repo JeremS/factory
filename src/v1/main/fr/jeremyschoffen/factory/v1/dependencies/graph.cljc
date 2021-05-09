@@ -1,10 +1,7 @@
 (ns fr.jeremyschoffen.factory.v1.dependencies.graph
   (:require
-    [clojure.set :as s]
-    [loom.graph :as loom]
     [loom.alg :as loom-alg]
-    [loom.alg-generic :as loom-alg-g]
-    [loom.derived :as loom-d]))
+    [loom.alg-generic :as loom-alg-g]))
 
 
 (defn topsort

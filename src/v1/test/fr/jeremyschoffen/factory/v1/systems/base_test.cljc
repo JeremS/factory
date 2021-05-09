@@ -1,8 +1,9 @@
 (ns fr.jeremyschoffen.factory.v1.systems.base-test
   (:require
-    #?(:clj [clojure.test :refer (deftest testing is)]
-       :cljs [cljs.test :refer (deftest testing is)])
-    [fr.jeremyschoffen.factory.v1.systems.base :as b]))
+    #?(:clj [clojure.test :refer (deftest is)]
+       :cljs [cljs.test :refer (deftest is)])
+    [fr.jeremyschoffen.factory.v1.systems.base :as b]
+    [fr.jeremyschoffen.factory.v1.utils :as u]))
 
 
 
@@ -50,13 +51,15 @@
             {:total-bt :v
              :taxe-coef :c})})
 
-
-(def system1
-  (b/system example1))
+(let [{s ::b/initial-state
+       m ::b/computations-map} (u/split-map example1 b/classify)]
+  (def initial-state s)
+  (def system1
+    (b/system m)))
 
 
 (deftest example1-t
-  (let [{::b/keys [initial-state computations-map total-order]} system1
+  (let [{::b/keys [computations-map total-order]} system1
         res (:res (b/execute-computations
                     initial-state
                     computations-map

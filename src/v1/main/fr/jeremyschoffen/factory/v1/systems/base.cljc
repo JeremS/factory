@@ -4,8 +4,7 @@
     [loom.graph :as loom]
     [meander.epsilon :as m]
     [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]
-    [fr.jeremyschoffen.factory.v1.systems.protocols :as p]
-    [fr.jeremyschoffen.factory.v1.utils :as u]))
+    [fr.jeremyschoffen.factory.v1.systems.protocols :as p]))
 
 
 (def impl
@@ -58,7 +57,6 @@
       [[!parent-name ~computation-name] ...])))
 
 
-
 (defn edges-for-computations-map [m]
   (mapcat #(apply edges-for-computation %) m))
 
@@ -66,24 +64,6 @@
 (defn make-graph [computation-map]
   (apply loom/digraph
          (edges-for-computations-map computation-map)))
-
-
-(defn system [spec-map]
-  (let [{::keys [initial-state computations-map] :as s}
-        (u/split-map spec-map classify)
-
-        computation-names (-> computations-map keys set)
-        graph (make-graph computations-map)
-        order (->> graph 
-                g/topsort
-                (filterv computation-names))]
-    (-> s
-        (assoc
-          ::input-names (-> initial-state keys set)
-          ::computations-map computations-map
-          ::computation-names computation-names
-          ::dependency-graph graph
-          ::total-order order))))
 
 
 (defn get-deps [state deps computation-name]
@@ -116,3 +96,17 @@
          computation-names))
      :res (persistent! @res)}))
 
+
+(defn system [computations-map]
+  (let [graph (make-graph computations-map)
+        computation-names (-> computations-map keys set)
+        input-names (s/difference (loom/nodes graph)
+                                  computation-names)
+        order (->> graph
+                g/topsort
+                (filterv computation-names))]
+    {::computations-map computations-map
+     ::input-names input-names
+     ::computation-names computation-names
+     ::dependency-graph graph
+     ::total-order order}))
