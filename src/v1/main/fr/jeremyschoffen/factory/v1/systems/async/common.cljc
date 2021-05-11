@@ -1,6 +1,5 @@
 (ns fr.jeremyschoffen.factory.v1.systems.async.common
   (:require
-    [clojure.set :as s]
     [meander.epsilon :as m]
     [fr.jeremyschoffen.factory.v1.systems.base :as b]
     [fr.jeremyschoffen.factory.v1.systems.protocols :as p]
@@ -56,7 +55,7 @@
         computation-names))))
 
 
-(def api-system
+(def api-components
   {:combine-map (b/c {:deps [:combine :then]
                       :f make-combine-map})
 
@@ -69,8 +68,5 @@
    :execute-computations (b/c {:deps [:execute-computation]
                                :f make-execute-computations})})
 
+(def api-system (b/system api-components))
 
-(comment
-  (-> api-system
-      b/system
-      ::b/input-names))
