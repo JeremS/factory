@@ -66,10 +66,14 @@
          (edges-for-computations-map computation-map)))
 
 
-(defn get-deps [state deps computation-name]
+(defn add-current-val [m v]
+  (vary-meta m assoc ::current-val v))
+
+
+(defn gather-deps [state deps computation-name]
   (-> state
       (select-keys deps)
-      (vary-meta assoc ::current-val (get state computation-name))))
+      (add-current-val (get state computation-name))))
 
 
 (defn current-val [deps-map]
@@ -79,7 +83,7 @@
 (defn execute-computation [state computations-map computation-name]
   (let [computation (get computations-map computation-name)
         deps (p/dependencies computation)
-        deps-map (get-deps state deps computation-name)]
+        deps-map (gather-deps state deps computation-name)]
     (p/compute computation deps-map)))
 
 
