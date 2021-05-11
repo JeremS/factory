@@ -13,6 +13,10 @@
     middleware))
 
 
+(defn clojure [cmd-string-arg]
+  (println "Calling clojure: " cmd-string-arg)
+  (t/clojure cmd-string-arg))
+
 ;; -----------------------------------------------------------------------------
 ;; Repl task
 ;; -----------------------------------------------------------------------------
@@ -26,10 +30,11 @@
     :dev
     :nrepl
     :piggie
-    :test})
+    :test
+    :async})
 
 (defn repl []
-  (t/clojure (repl-cmd-args repl-nrepl-aliases
+  (clojure (repl-cmd-args repl-nrepl-aliases
                             repl-nrepl-middleware)))
 
 
@@ -47,7 +52,7 @@
 
 
 (defn reveal []
-  (t/clojure (repl-cmd-args reveal-nrepl-aliases
+  (clojure (repl-cmd-args reveal-nrepl-aliases
                             reveal-nrepl-middleware)))
 
 
@@ -60,8 +65,8 @@
 
 
 (defn test-clj []
-  (t/clojure (test-cmd :unit-clj)))
+  (clojure (test-cmd :unit-clj)))
 
 
 (defn test-cljs []
-  (t/clojure (test-cmd :unit-cljs)))
+  (clojure (test-cmd :unit-cljs)))
