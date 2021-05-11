@@ -1,6 +1,7 @@
 (ns tasks
   (:require
-    [babashka.tasks :as t]))
+    [babashka.tasks :as t]
+    [babashka.process :as p]))
 
 
 (defn aliases->str [aliases]
@@ -70,3 +71,14 @@
 
 (defn test-cljs []
   (clojure (test-cmd :unit-cljs)))
+
+
+;; -----------------------------------------------------------------------------
+;; Kondo
+;; -----------------------------------------------------------------------------
+
+(defn kondo []
+  (-> (p/sh ["clj-kondo" "--lint" "src/v1/main" "--lint" "src/v1/test/"])
+    :out
+    println))
+

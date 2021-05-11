@@ -7,5 +7,6 @@
   repl t/repl
   reveal t/reveal
   test-clj t/test-clj
-  test-cljs t/test-cljs}}
+  test-cljs t/test-cljs
+  kondo t/kondo}}
 
