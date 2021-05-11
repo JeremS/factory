@@ -36,7 +36,7 @@
 
 (defn repl []
   (clojure (repl-cmd-args repl-nrepl-aliases
-                            repl-nrepl-middleware)))
+                          repl-nrepl-middleware)))
 
 
 ;; -----------------------------------------------------------------------------
