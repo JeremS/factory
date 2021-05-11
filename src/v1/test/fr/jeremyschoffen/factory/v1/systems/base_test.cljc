@@ -60,13 +60,20 @@
 
 (deftest example1-t
   (let [{::b/keys [computations-map total-order]} system1
-        res (:res (b/execute-computations
-                    initial-state
-                    computations-map
-                    total-order))]
+        res (b/execute-computations
+              initial-state
+              computations-map
+             total-order)]
     (println res)
     (is (= res
-           {:total1 60
+           {:price1 10
+            :quantity1 6
+
+            :price2 20
+            :quantity2 2
+
+            :taxe-coef 0.2
+            :total1 60
             :total2 40
             :total-bt 100
             :total 120.0}))))

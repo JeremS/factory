@@ -88,17 +88,13 @@
 
 
 (defn execute-computations [state computations-map computation-names]
-  (let [res (volatile! (transient {}))]
-    {:new-state
-     (persistent!
-       (reduce
-         (fn [acc computation-name]
-           (let [r (execute-computation acc computations-map computation-name)]
-             (vswap! res assoc! computation-name r)
-             (assoc! acc computation-name r)))
-         (transient state)
-         computation-names))
-     :res (persistent! @res)}))
+  (persistent!
+   (reduce
+     (fn [acc computation-name]
+       (let [r (execute-computation acc computations-map computation-name)]
+         (assoc! acc computation-name r)))
+     (transient state)
+     computation-names)))
 
 
 (defn system [computations-map]
