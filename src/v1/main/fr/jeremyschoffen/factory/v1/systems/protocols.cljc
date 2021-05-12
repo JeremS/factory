@@ -10,7 +10,7 @@
 (defprotocol Computation
   :extend-via-metadata true
   (computation? [this])
-  (compute [_ deps]))
+  (compute [this deps]))
 
 
 (extend-type #?(:clj Object :cljs default)
@@ -20,4 +20,4 @@
 
   Computation
   (computation? [this] false)
-  (compute [this] nil))
+  (compute [this deps] nil))
