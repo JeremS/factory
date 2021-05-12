@@ -9,4 +9,5 @@
 
 (comment
   (start-node-repl)
+  (type 1)
   :cljs/quit)

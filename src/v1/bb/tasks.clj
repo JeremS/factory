@@ -61,7 +61,7 @@
 ;; Tests
 ;; -----------------------------------------------------------------------------
 (defn test-cmd [id]
-  (format "-M:clj:cljs:test -m kaocha.runner %s"
+  (format "-M:async:clj:cljs:test -m kaocha.runner %s"
           id))
 
 
