@@ -6,7 +6,9 @@
     [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]
     [fr.jeremyschoffen.factory.v1.systems.protocols :as p]))
 
-
+;; -----------------------------------------------------------------------------
+;; Protocols implementation
+;; -----------------------------------------------------------------------------
 (def impl
   {`p/dependent? (constantly true)
    `p/dependencies (fn [this]
@@ -49,6 +51,9 @@
     ::initial-state))
 
 
+;; -----------------------------------------------------------------------------
+;; Graph creation
+;; -----------------------------------------------------------------------------
 (defn edges-for-computation [computation-name deps]
   (-> deps
     p/dependencies
@@ -65,7 +70,9 @@
   (apply loom/digraph
          (edges-for-computations-map computation-map)))
 
-
+;; -----------------------------------------------------------------------------
+;; Execution
+;; -----------------------------------------------------------------------------
 (defn add-current-val [m v]
   (vary-meta m assoc ::current-val v))
 
@@ -89,14 +96,17 @@
 
 (defn execute-computations [state computations-map computation-names]
   (persistent!
-   (reduce
-     (fn [acc computation-name]
-       (let [r (execute-computation acc computations-map computation-name)]
-         (assoc! acc computation-name r)))
-     (transient state)
-     computation-names)))
+    (reduce
+      (fn [acc computation-name]
+        (let [r (execute-computation acc computations-map computation-name)]
+          (assoc! acc computation-name r)))
+      (transient state)
+      computation-names)))
 
 
+;; -----------------------------------------------------------------------------
+;; System
+;; -----------------------------------------------------------------------------
 (defn system [computations-map]
   (let [graph (make-graph computations-map)
         computation-names (-> computations-map keys set)

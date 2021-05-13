@@ -18,18 +18,18 @@
 
 (defn make-gather-deps [{:keys [promise? combine-map then]}]
   (fn gather-deps [state deps-names computation-name]
-    (let [{realized-state false
-           deferred-state true} (-> state
-                                    (select-keys deps-names)
-                                    (u/split-map promise?))
-          realized-state (b/add-current-val realized-state
+    (let [{realized-deps-map false
+           deferred-deps-map true} (-> state
+                                     (select-keys deps-names)
+                                     (u/split-map promise?))
+          realized-deps-map (b/add-current-val realized-deps-map
                                             (get state computation-name))]
-      (if (empty? deferred-state)
-        realized-state
-        (-> deferred-state
+      (if (empty? deferred-deps-map)
+        realized-deps-map
+        (-> deferred-deps-map
             combine-map
             (then (fn [newly-realized-state]
-                    (merge realized-state newly-realized-state))))))))
+                    (merge realized-deps-map newly-realized-state))))))))
 
 
 (defn make-execute-computation [{:keys [gather-deps promise? then]}]
