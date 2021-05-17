@@ -31,8 +31,7 @@
     :dev
     :nrepl
     :piggie
-    :test
-    :async})
+    :test})
 
 (defn repl []
   (clojure (repl-cmd-args repl-nrepl-aliases
@@ -61,7 +60,7 @@
 ;; Tests
 ;; -----------------------------------------------------------------------------
 (defn test-cmd [id]
-  (format "-M:async:clj:cljs:test -m kaocha.runner %s"
+  (format "-M:clj:cljs:test -m kaocha.runner %s"
           id))
 
 
