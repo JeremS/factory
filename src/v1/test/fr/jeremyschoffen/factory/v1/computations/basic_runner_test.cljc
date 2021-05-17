@@ -28,27 +28,20 @@
 
    :taxe-coef 0.2
 
-   :total1 (-> sub-total
-             (c/wrap-rename-keys {:price1 :price
-                                  :quantity1 :quantity})
-             (c/c [:price1 :quantity1]))
+   :total1 (c/c sub-total {:price1 :price
+                           :quantity1 :quantity})
 
-   :total2 (-> sub-total 
-             (c/wrap-rename-keys {:price2 :price
-                                  :quantity2 :quantity})
-             (c/c [:price2 :quantity2]))
+   :total2  (c/c sub-total {:price2 :price
+                            :quantity2 :quantity})
 
-   :total-bt (c/c sum-vals [:total1 :total2])
+   :total-bt (c/c sum-vals :total1 :total2)
 
-   :total (-> apply-coef
-            (c/wrap-rename-keys {:total-bt :v
-                                 :taxe-coef :c})
-            (c/c [:total-bt :taxe-coef]))})
+   :total (c/c apply-coef {:total-bt :v
+                           :taxe-coef :c})})
 
 
-(deftest example1-t
-  (is (= (c/run example1)
-         {:price1 10
+(def expected-res
+  {:price1 10
           :quantity1 6
 
           :price2 20
@@ -58,5 +51,9 @@
           :total1 60
           :total2 40
           :total-bt 100
-          :total 120.0})))
+          :total 120.0})
+
+
+(deftest example1-t
+  (is (= (c/run example1) expected-res)))
 
