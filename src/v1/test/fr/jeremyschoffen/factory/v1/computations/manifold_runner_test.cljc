@@ -82,7 +82,7 @@
   (manifold/success! (:price1 example2) 10)
 
   #?(:clj
-     (is (= (deref res-2 1 ::error)
+     (is (= (deref res-2 10 :promise-not-realized-yet)
             expected-res))
      :cljs
      (async done
