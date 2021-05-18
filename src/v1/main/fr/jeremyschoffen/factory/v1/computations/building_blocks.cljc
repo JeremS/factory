@@ -55,12 +55,14 @@
 
 
 (defn make-compute-async [{:keys [compute promise? then]}]
-  (fn compute-async [computation current-val deps]
+  (fn compute-async [{:keys [deps] :as ctxt}]
     (if-not (promise? deps)
-      (compute computation current-val deps)
+      (compute ctxt)
       (-> deps
           (then (fn [realized-deps]
-                  (compute computation current-val realized-deps)))))))
+                  (-> ctxt
+                      (assoc :deps realized-deps)
+                      compute)))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Execution fns
@@ -70,7 +72,10 @@
     (let [dep-names (p/dependencies computation)
           deps (gather-deps inputs dep-names)
           current-val (get inputs computation-name)]
-      (compute computation current-val deps))))
+      (compute {:computation-name computation-name
+                :computation computation
+                :current-val current-val
+                :deps deps}))))
 
 
 (defn make-execute-computations [{:keys [execute-computation]}]

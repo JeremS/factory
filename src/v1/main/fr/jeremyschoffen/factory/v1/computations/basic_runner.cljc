@@ -45,7 +45,7 @@
   (some-> x meta ::computation))
 
 
-(defn compute [computation _ deps]
+(defn compute [{:keys [computation deps]}]
   (computation deps))
 
 
