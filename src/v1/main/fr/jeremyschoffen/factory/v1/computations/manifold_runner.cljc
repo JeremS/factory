@@ -3,11 +3,12 @@
     #?(:clj [manifold.deferred :as manifold]
        :cljs [manifold-cljs.deferred :as manifold])
     [fr.jeremyschoffen.factory.v1.computations.basic-runner :as r]
+    [fr.jeremyschoffen.factory.v1.computations.building-blocks :as bb]
     [fr.jeremyschoffen.factory.v1.computations.promise-common :as pc]))
 
 
 
-(def c r/c)
+(def c bb/c)
 
 
 (def impl
@@ -56,6 +57,7 @@
        :d (c add :a :b)
        :e (c add :c :d)}))
 
+  (run config)
   (def res (combine-mixed-map (run config2)))
   (deref res 1 :blocked)
   (manifold/success! (:a config2) 1)

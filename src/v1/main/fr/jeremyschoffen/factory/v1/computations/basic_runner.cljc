@@ -2,67 +2,26 @@
   (:require
     [clojure.set :as s]
     [meander.epsilon :as m]
-    [fr.jeremyschoffen.factory.v1.dependencies.protocols :as p]
     [fr.jeremyschoffen.factory.v1.computations.building-blocks :as bb]
     [fr.jeremyschoffen.factory.v1.utils :as u]))
 
 
-
-(defn- parse-deps [deps]
-  (m/find deps
-      (m/seqable (m/or (m/pred keyword? !k)
-                       (m/pred sequential? (m/seqable !k ...))
-                       (m/map-of !x !y))
-                 ...)
-      [!k !x !y]))
-
-
-(defn wrap-rename-keys [f renames]
-  (fn [deps]
-    (-> deps
-        (s/rename-keys renames)
-        f)))
-
-
-(defn c
-  "Make a computation from a function `f`, declaring its dependencies in
-  `deps`."
-  [f & deps]
-  (let [[deps names-from names-to] (parse-deps deps)
-        f (cond-> f
-            (seq names-from)
-            (wrap-rename-keys (zipmap names-from names-to)))]
-    (-> f
-      (vary-meta  merge
-        {`p/dependent? (constantly true)
-         `p/dependencies (constantly (s/union (s/difference (set deps)
-                                                            (set names-to))
-                                              (set names-from)))
-         ::computation true}))))
-
-
-(defn computation? [x]
-  (some-> x meta ::computation))
+(def c bb/c)
 
 
 (defn compute [{:keys [computation deps]}]
   (computation deps))
 
 
-(def execute-computation
-  (bb/make-execute-computation
+(def execute-computations
+  (bb/make-execute-computations
     {:gather-deps select-keys
      :compute compute}))
 
 
-(def execute-computations
-  (bb/make-execute-computations
-    {:execute-computation execute-computation}))
-
-
 (defn split-config [m]
   (u/split-map m (fn [x]
-                   (if (computation? x)
+                   (if (bb/computation? x)
                      :computations
                      :inputs))))
 

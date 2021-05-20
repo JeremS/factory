@@ -26,6 +26,29 @@
          (edges-for-computations-map computation-map)))
 
 
+;; -----------------------------------------------------------------------------
+;; Utils
+;; -----------------------------------------------------------------------------
+(def nodes loom/nodes)
+
+
+(def edges loom/edges)
+
+
+(def successors loom/successors)
+
+
+(def predecessors loom/predecessors)
+
+
+(defn starting-point? [dependency-graph node-name]
+  (empty? (predecessors dependency-graph node-name)))
+
+
+(defn starting-points [dependency-graph]
+  (into #{}
+        (filter (partial starting-point? dependency-graph))
+        (nodes dependency-graph)))
 
 ;; -----------------------------------------------------------------------------
 ;; Algorithms
@@ -62,7 +85,7 @@
 (defn reachable-from-node
   "Return all nodes of a graph that are reachable from a `node`
   using the `neighbors` function. The original `node` is included in the result.
-  
+
   Args:
   - `node`: The name of a node used a a starting point
   - `neighbors`: a function node -> neighbors"
