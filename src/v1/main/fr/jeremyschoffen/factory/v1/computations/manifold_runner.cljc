@@ -11,6 +11,9 @@
 (def c bb/c)
 
 
+(def options bb/options)
+
+
 (def impl
   {:gather-deps select-keys
    :compute r/compute

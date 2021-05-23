@@ -10,13 +10,43 @@
 ;; -----------------------------------------------------------------------------
 ;; Computation representation
 ;; -----------------------------------------------------------------------------
+(defn options? [m]
+  (and (map? m)
+       (-> m meta ::options)))
+
+
+(defn options [& {:as opts}]
+  (with-meta opts {::options true}))
+
+
+(defn computation? [x]
+  (some-> x meta ::computation))
+
+
 (defn parse-deps [deps]
   (m/find deps
-      (m/seqable (m/or (m/pred keyword? !k)
-                       (m/pred sequential? (m/seqable !k ...))
-                       (m/map-of !x !y))
-                 ...)
-      [!k !x !y]))
+    (m/seqable (m/or (m/pred keyword? !deps)
+                     (m/pred sequential? (m/seqable !deps ...))
+                     (m/pred options? !opts)
+                     (m/and (m/pred (complement options?))
+                            (m/map-of !names-from !names-to)))
+               ...)
+    {:deps (s/union
+               (set !names-from)
+               (s/difference (set !deps) (set !names-to)))
+     :alias-map (zipmap !names-from !names-to)
+     :options (apply merge !opts)}))
+
+(comment
+  (defn parse-deps [deps]
+    (m/find deps
+        (m/seqable (m/or (m/pred keyword? !k)
+                         (m/pred sequential? (m/seqable !k ...))
+                         (m/pred options? !opts)
+                         (m/and (m/pred (complement options?))
+                                (m/map-of !x !y)))
+                   ...)
+        [!k !x !y !opts])))
 
 
 (defn wrap-rename-keys [f renames]
@@ -26,25 +56,44 @@
         f)))
 
 
+(defn wrap-merge-opts [f opts]
+  (fn [m]
+    (f (merge m opts))))
+
+
 (defn c
   "Make a computation from a function `f`, declaring its dependencies in
   `deps`."
   [f & deps]
-  (let [[deps names-from names-to] (parse-deps deps)
-        f (cond-> f
-            (seq names-from)
-            (wrap-rename-keys (zipmap names-from names-to)))]
+  (let [{:keys [deps alias-map options]} (parse-deps deps)]
     (-> f
+      (cond->
+        (seq options) (wrap-merge-opts options)
+        (seq alias-map) (wrap-rename-keys alias-map))
       (vary-meta  merge
         {`p/dependent? (constantly true)
-         `p/dependencies (constantly (s/union (s/difference (set deps)
-                                                            (set names-to))
-                                              (set names-from)))
+         `p/dependencies (constantly deps)
          ::computation true}))))
 
+(comment
+  (defn c
+    "Make a computation from a function `f`, declaring its dependencies in
+  `deps`."
+    [f & deps]
+    (let [[deps names-from names-to] (parse-deps deps)
+          f (cond-> f
+              (seq names-from)
+              (wrap-rename-keys (zipmap names-from names-to)))]
+      (-> f
+        (vary-meta  merge
+          {`p/dependent? (constantly true)
+           `p/dependencies (constantly (s/union (s/difference (set deps)
+                                                              (set names-to))
+                                                (set names-from)))
+           ::computation true})))))
 
-(defn computation? [x]
-  (some-> x meta ::computation))
+
+
 
 
 ;; -----------------------------------------------------------------------------
