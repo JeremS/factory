@@ -70,7 +70,6 @@
      :phases phases
      :order order}))
 
-
 ;; -----------------------------------------------------------------------------
 ;; Api configs
 ;; -----------------------------------------------------------------------------
@@ -81,6 +80,21 @@
 (defn compute-on-current-val [{:keys [computation current-value]}]
   (computation current-value))
 
+
+(defn make-phase-runner [{:keys [execute-computations phase-name keep-state reverse-order]
+                          :or {keep-state true reverse-order false}}]
+  (fn [{:keys [state phases order] :as system}]
+    (let [phase (get phases phase-name)
+          {:keys [computations computation-names]} phase
+          order (cond-> (filterv computation-names order)
+                  reverse-order rseq)
+          new-state (execute-computations state computations order)]
+       (cond-> system
+         keep-state (assoc :state new-state)))))
+
+
+
+;(defn make-phase-runner-async [arg])
 
 (def common-impl
   {:gather-deps select-keys

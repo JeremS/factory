@@ -18,46 +18,32 @@
 (def ^:private execute-on-current-val (:execute-computations-on-current-val internal-api))
 
 
-
-(defn make-run-phase [{:keys [execute-computations phase-name keep-state reverse-order]
-                       :or {keep-state true reverse-order false}}]
-  (fn [{:keys [state phases order] :as system}]
-    (let [phase (get phases phase-name)
-          {:keys [computations computation-names]} phase
-          order (cond-> (filterv computation-names order)
-                  reverse-order rseq)
-          new-state (execute-computations state computations order)]
-       (cond-> system
-         keep-state (assoc :state new-state)))))
-
-
-
 (def ^:private run-pre-start
-  (make-run-phase {:execute-computations execute-on-deps
-                   :phase-name :pre-start
-                   :keep-state false
-                   :reverse-order false}))
+  (common/make-phase-runner {:execute-computations execute-on-deps
+                             :phase-name :pre-start
+                             :keep-state false
+                             :reverse-order false}))
 
 
 (def ^:private run-start
-  (make-run-phase {:execute-computations execute-on-deps
-                   :phase-name :start
-                   :keep-state true
-                   :reverse-order false}))
+  (common/make-phase-runner {:execute-computations execute-on-deps
+                             :phase-name :start
+                             :keep-state true
+                             :reverse-order false}))
 
 
 (def ^:private run-post-start
-  (make-run-phase {:execute-computations execute-on-current-val
-                   :phase-name :post-start
-                   :keep-state false
-                   :reverse-order false}))
+  (common/make-phase-runner {:execute-computations execute-on-current-val
+                             :phase-name :post-start
+                             :keep-state false
+                             :reverse-order false}))
 
 
 (def ^:private run-stop
-  (make-run-phase {:execute-computations execute-on-current-val
-                   :phase-name :stop
-                   :keep-state false
-                   :reverse-order true}))
+  (common/make-phase-runner {:execute-computations execute-on-current-val
+                             :phase-name :stop
+                             :keep-state false
+                             :reverse-order true}))
 
 
 
