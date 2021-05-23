@@ -2,7 +2,7 @@
   (:require
       #?(:clj [clojure.test :refer (deftest is)]
          :cljs [cljs.test :refer-macros (deftest is)])
-      [fr.jeremyschoffen.factory.v1.computations.building-blocks :as common]))
+      [fr.jeremyschoffen.factory.v1.computations.common :as common]))
 
 
 (def example-deps

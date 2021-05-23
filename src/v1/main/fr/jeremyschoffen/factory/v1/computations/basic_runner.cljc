@@ -1,13 +1,13 @@
 (ns fr.jeremyschoffen.factory.v1.computations.basic-runner
   (:require
-    [fr.jeremyschoffen.factory.v1.computations.building-blocks :as bb]
+    [fr.jeremyschoffen.factory.v1.computations.common :as common]
     [fr.jeremyschoffen.factory.v1.utils :as u]))
 
 
-(def c bb/c)
+(def c common/c)
 
 
-(def options bb/options)
+(def options common/options)
 
 
 (defn compute [{:keys [computation deps]}]
@@ -15,20 +15,20 @@
 
 
 (def execute-computations
-  (bb/make-execute-computations
+  (common/make-execute-computations
     {:gather-deps select-keys
      :compute compute}))
 
 
 (defn split-config [m]
   (u/split-map m (fn [x]
-                   (if (bb/computation? x)
+                   (if (common/computation? x)
                      :computations
                      :inputs))))
 
 
 (def run
-  (bb/make-run
+  (common/make-run
     {:execute-computations execute-computations
      :split-config split-config}))
 

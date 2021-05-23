@@ -1,4 +1,4 @@
-(ns fr.jeremyschoffen.factory.v1.computations.building-blocks
+(ns fr.jeremyschoffen.factory.v1.computations.common
   (:require
     [clojure.set :as s]
     [meander.epsilon :as m]

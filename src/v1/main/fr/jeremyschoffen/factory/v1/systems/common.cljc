@@ -1,7 +1,7 @@
 (ns fr.jeremyschoffen.factory.v1.systems.common
  (:require
    [meander.epsilon :as m]
-   [fr.jeremyschoffen.factory.v1.computations.building-blocks :as bb]
+   [fr.jeremyschoffen.factory.v1.computations.common :as cc]
    [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]))
 
 ;; -----------------------------------------------------------------------------
@@ -44,7 +44,7 @@
 
 (defn computations->phase [computations]
   {:computations computations
-   :computation-names (bb/computation-names computations)})
+   :computation-names (cc/computation-names computations)})
 
 
 (defn computations-maps->phases [phases]
@@ -65,7 +65,7 @@
         {start-computations :computations
          start-computations-names :computation-names} start-phase
         dependency-graph (g/make-graph start-computations)
-        order (bb/computations-order dependency-graph start-computations-names)]
+        order (cc/computations-order dependency-graph start-computations-names)]
     {:state inputs
      :phases phases
      :order order}))
@@ -105,11 +105,11 @@
 (def impl
   (merge
     common-impl
-    {:execute-computations-on-deps (bb/c bb/make-execute-computations
+    {:execute-computations-on-deps (cc/c cc/make-execute-computations
                                          :gather-deps
                                          {:compute-on-deps :compute})
 
-     :execute-computations-on-current-val (bb/c bb/make-execute-computations
+     :execute-computations-on-current-val (cc/c cc/make-execute-computations
                                                 :gather-deps
                                                 {:compute-on-current-val :compute})}))
 
@@ -118,27 +118,27 @@
   (merge
     common-impl
     {:combine-map
-     (bb/c bb/make-combine-map :combine :then)
+     (cc/c cc/make-combine-map :combine :then)
 
      :combine-mixed-map
-     (bb/c bb/make-combine-mixed-map :combine-map :promise? :then)
+     (cc/c cc/make-combine-mixed-map :combine-map :promise? :then)
 
      :gather-deps-async
-     (bb/c bb/make-gather-deps-async :gather-deps :combine-mixed-map)
+     (cc/c cc/make-gather-deps-async :gather-deps :combine-mixed-map)
 
-     :compute-on-deps-async (bb/c bb/make-compute-async
+     :compute-on-deps-async (cc/c cc/make-compute-async
                                   :promise? :then
                                   {:compute-on-deps :compute})
 
-     :compute-on-current-val-async (bb/c bb/make-compute-async
+     :compute-on-current-val-async (cc/c cc/make-compute-async
                                          :promise? :then
                                          {:compute-on-current-val :compute})
 
-     :execute-computations-on-deps (bb/c bb/make-execute-computations
+     :execute-computations-on-deps (cc/c cc/make-execute-computations
                                          {:gather-deps-async :gather-deps
                                           :compute-on-deps-async :compute})
 
-     :execute-computations-on-current-val (bb/c bb/make-execute-computations
+     :execute-computations-on-current-val (cc/c cc/make-execute-computations
                                                 {:gather-deps-async :gather-deps
                                                  :compute-on-current-val-async :compute})}))
 
