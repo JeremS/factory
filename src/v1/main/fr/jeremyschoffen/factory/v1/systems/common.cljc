@@ -70,8 +70,9 @@
      :phases phases
      :order order}))
 
+
 ;; -----------------------------------------------------------------------------
-;; Api configs
+;; Api building fns
 ;; -----------------------------------------------------------------------------
 (defn compute-on-deps [{:keys [computation deps]}]
   (computation deps))
@@ -93,9 +94,15 @@
          keep-state (assoc :state new-state)))))
 
 
+(defn make-phase-runner-async [{:keys [combine-mixed-map] :as deps}]
+  (let [run-phase (make-phase-runner deps)]
+    (fn [map-arg]
+      (-> map-arg run-phase combine-mixed-map))))
 
-;(defn make-phase-runner-async [arg])
 
+;; -----------------------------------------------------------------------------
+;; Api configs
+;; -----------------------------------------------------------------------------
 (def common-impl
   {:gather-deps select-keys
    :compute-on-deps compute-on-deps
@@ -111,7 +118,35 @@
 
      :execute-computations-on-current-val (cc/c cc/make-execute-computations
                                                 :gather-deps
-                                                {:compute-on-current-val :compute})}))
+                                                {:compute-on-current-val :compute})
+
+     :run-pre-start (cc/c make-phase-runner
+                          {:execute-computations-on-deps :execute-computations}
+                          (cc/options
+                            :phase-name :pre-start
+                            :keep-state false
+                            :reverse-order false))
+
+     :run-start (cc/c make-phase-runner
+                      {:execute-computations-on-deps :execute-computations}
+                      (cc/options
+                        :phase-name :start
+                        :keep-state true
+                        :reverse-order false))
+
+     :run-post-start (cc/c make-phase-runner
+                           {:execute-computations-on-current-val :execute-computations}
+                           (cc/options
+                             :phase-name :post-start
+                             :keep-state false
+                             :reverse-order false))
+
+     :run-stop (cc/c make-phase-runner
+                     {:execute-computations-on-current-val :execute-computations}
+                     (cc/options
+                       :phase-name :stop
+                       :keep-state false
+                       :reverse-order true))}))
 
 
 (def impl-async
