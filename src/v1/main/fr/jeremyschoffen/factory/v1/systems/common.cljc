@@ -4,7 +4,9 @@
    [fr.jeremyschoffen.factory.v1.computations.building-blocks :as bb]
    [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]))
 
-
+;; -----------------------------------------------------------------------------
+;; Config -> system
+;; -----------------------------------------------------------------------------
 (defn components->triples [components]
   (m/search components
     {?component-name {?phase-name ?computation}}
@@ -30,68 +32,73 @@
       m)))
 
 
-(defn triples->computation-phases [triples]
+(defn triples->computations-maps [triples]
   (->> triples
     triple->transient-computations!
     persist!))
 
 
-(defn components->computation-phases [components]
-  (-> components components->triples triples->computation-phases))
+(defn components->computations-maps [components]
+  (-> components components->triples triples->computations-maps))
 
 
-(defn expand-computations [computations]
-  (let [computation-names (bb/computation-names computations)
-        graph (g/make-graph computations)
-        inputs (g/starting-points graph)
-        order (bb/computations-order graph computation-names)]
-    {:computations computations
-     :computation-names computation-names
-     :dependency-graph graph
-     :inputs inputs
-     :order order}))
+(defn computations->phase [computations]
+  {:computations computations
+   :computation-names (bb/computation-names computations)})
 
 
-(defn expand-phases [phases]
+(defn computations-maps->phases [phases]
   (reduce-kv
     (fn [acc k v]
-      (assoc acc k (expand-computations v)))
+      (assoc acc k (computations->phase v)))
     {}
     phases))
 
 
-(defn conf->system [{:keys [inputs components] :as conf}]
-  (let []
+(defn components->phases [components]
+  (-> components components->computations-maps computations-maps->phases))
+
+
+(defn conf->system [{:keys [inputs components]}]
+  (let [phases (components->phases components)
+        start-phase (get phases :start)
+        {start-computations :computations
+         start-computations-names :computation-names} start-phase
+        dependency-graph (g/make-graph start-computations)
+        order (bb/computations-order dependency-graph start-computations-names)]
     {:state inputs
-     :phases (-> components
-               components->computation-phases
-               expand-phases)}))
+     :phases phases
+     :order order}))
 
 
-(defn compute-start-like [{:keys [computation deps]}]
+;; -----------------------------------------------------------------------------
+;; Api configs
+;; -----------------------------------------------------------------------------
+(defn compute-on-deps [{:keys [computation deps]}]
   (computation deps))
 
 
-(defn compute-stop-like [{:keys [computation current-value]}]
+(defn compute-on-current-val [{:keys [computation current-value]}]
   (computation current-value))
 
 
 (def common-impl
   {:gather-deps select-keys
-   :compute-start-like compute-start-like
-   :compute-stop-like compute-stop-like})
+   :compute-on-deps compute-on-deps
+   :compute-on-current-val compute-on-current-val})
 
 
 (def impl
   (merge
     common-impl
-    {:execute-computations-start-like (bb/c bb/make-execute-computations
-                                            :gather-deps
-                                            {:compute-start-like :compute})
+    {:execute-computations-on-deps (bb/c bb/make-execute-computations
+                                         :gather-deps
+                                         {:compute-on-deps :compute})
 
-     :execute-computations-stop-like (bb/c bb/make-execute-computations
-                                           :gather-deps
-                                           {:compute-stop-like :compute})}))
+     :execute-computations-on-current-val (bb/c bb/make-execute-computations
+                                                :gather-deps
+                                                {:compute-on-current-val :compute})}))
+
 
 (def impl-async
   (merge
@@ -105,18 +112,19 @@
      :gather-deps-async
      (bb/c bb/make-gather-deps-async :gather-deps :combine-mixed-map)
 
-     :compute-start-like-async (bb/c bb/make-compute-async
-                                     :promise? :then
-                                     {:compute-start-like :compute})
+     :compute-on-deps-async (bb/c bb/make-compute-async
+                                  :promise? :then
+                                  {:compute-on-deps :compute})
 
-     :compute-stop-like-async (bb/c bb/make-compute-async
-                                    :promise? :then
-                                    {:compute-stop-like :compute})
+     :compute-on-current-val-async (bb/c bb/make-compute-async
+                                         :promise? :then
+                                         {:compute-on-current-val :compute})
 
-     :execute-computations-start-like (bb/c bb/make-execute-computations
-                                            {:gather-deps-async :gather-deps
-                                             :compute-start-like-async :compute})
+     :execute-computations-on-deps (bb/c bb/make-execute-computations
+                                         {:gather-deps-async :gather-deps
+                                          :compute-on-deps-async :compute})
 
-     :execute-computations-stop-like (bb/c bb/make-execute-computations
-                                           {:gather-deps-async :gather-deps
-                                            :compute-stop-like-async :compute})}))
+     :execute-computations-on-current-val (bb/c bb/make-execute-computations
+                                                {:gather-deps-async :gather-deps
+                                                 :compute-on-current-val-async :compute})}))
+
