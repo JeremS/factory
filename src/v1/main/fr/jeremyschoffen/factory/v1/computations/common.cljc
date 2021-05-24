@@ -37,17 +37,6 @@
      :alias-map (zipmap !names-from !names-to)
      :options (apply merge !opts)}))
 
-(comment
-  (defn parse-deps [deps]
-    (m/find deps
-        (m/seqable (m/or (m/pred keyword? !k)
-                         (m/pred sequential? (m/seqable !k ...))
-                         (m/pred options? !opts)
-                         (m/and (m/pred (complement options?))
-                                (m/map-of !x !y)))
-                   ...)
-        [!k !x !y !opts])))
-
 
 (defn wrap-rename-keys [f renames]
   (fn [deps]
@@ -74,26 +63,6 @@
         {`p/dependent? (constantly true)
          `p/dependencies (constantly deps)
          ::computation true}))))
-
-(comment
-  (defn c
-    "Make a computation from a function `f`, declaring its dependencies in
-  `deps`."
-    [f & deps]
-    (let [[deps names-from names-to] (parse-deps deps)
-          f (cond-> f
-              (seq names-from)
-              (wrap-rename-keys (zipmap names-from names-to)))]
-      (-> f
-        (vary-meta  merge
-          {`p/dependent? (constantly true)
-           `p/dependencies (constantly (s/union (s/difference (set deps)
-                                                              (set names-to))
-                                                (set names-from)))
-           ::computation true})))))
-
-
-
 
 
 ;; -----------------------------------------------------------------------------
