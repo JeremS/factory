@@ -57,11 +57,20 @@
 
 
 (deftest example1-t
-  (is (= (mr/run example1) expected-res)))
+  #?(:clj (is (= (deref (mr/run example1) 10 :blocked)
+                 expected-res))
+
+     :cljs
+     (async done
+       (manifold/chain (mr/run example1)
+                       (fn [res]
+                         (is res expected-res)
+                         (done))))))
 
 
 (defn apply-coef-async [m]
   (manifold/future (apply-coef m)))
+
 
 (def example2
   (merge
@@ -70,9 +79,8 @@
      :total (mr/c apply-coef-async {:total-bt :v
                                     :taxe-coef :c})}))
 
-(def res-2 (-> example2
-             mr/run
-             mr/combine-mixed-map))
+
+(def res-2 (mr/run example2))
 
 
 (deftest example2-t

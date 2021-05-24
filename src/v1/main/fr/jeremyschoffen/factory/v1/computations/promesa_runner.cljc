@@ -13,23 +13,21 @@
 (def options common/options)
 
 
-(def impl
+(def ^:private impl
   {:gather-deps select-keys
    :compute r/compute
    :split-config r/split-config
 
    :promise? promesa/deferred?
    :combine promesa/all
-   :then promesa/then})
+   :then promesa/then
+   :make-resolved promesa/resolved})
 
 
-(def api (r/run (merge impl pc/api-build-conf)))
+(def ^:private internal-api (r/run (merge impl pc/api-build-conf)))
 
 
-(def combine-mixed-map (:combine-mixed-map api))
-
-
-(def run (:run api))
+(def run (:run internal-api))
 
 
 
@@ -59,7 +57,7 @@
        :d (c add :a :b)
        :e (c add :c :d)}))
 
-  (def res (combine-mixed-map (run config2)))
+  (def res (run config2))
   (deref res 1 :blocked)
   (promesa/resolve! (:a config2) 1)
   (deref res 1 :blocked))

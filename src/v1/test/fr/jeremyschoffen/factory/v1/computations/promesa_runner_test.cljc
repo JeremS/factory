@@ -56,11 +56,20 @@
 
 
 (deftest example1-t
-  (is (= (pr/run example1) expected-res)))
+  #?(:clj (is (= (deref (pr/run example1) 10 :blocked)
+                 expected-res))
+
+     :cljs
+     (async done
+       (promesa/then (pr/run example1)
+                     (fn [res]
+                       (is res expected-res)
+                       (done))))))
 
 
 (defn apply-coef-async [m]
   (promesa/future (apply-coef m)))
+
 
 (def example2
   (merge
@@ -70,13 +79,10 @@
                                     :taxe-coef :c})}))
 
 
-(def res-2 (-> example2
-             pr/run
-             pr/combine-mixed-map))
+(def res-2 (pr/run example2))
 
 
 (deftest example2-t
-
   (is (promesa/promise? res-2))
   #?(:clj (is (promesa/pending? res-2)))
 

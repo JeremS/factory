@@ -91,12 +91,12 @@
                   (zipmap names ps)))))))
 
 
-(defn make-combine-mixed-map [{:keys [combine-map promise? then]}]
+(defn make-combine-mixed-map [{:keys [combine-map promise? then make-resolved]}]
   (fn combine-mixed-map [m]
     (let [{realized-part false
            deferred-part true} (u/split-map m promise?)]
       (if (empty? deferred-part)
-        realized-part
+        (make-resolved realized-part)
         (-> deferred-part
             combine-map
             (then (fn [newly-realized-deps]
@@ -110,15 +110,13 @@
         combine-mixed-map)))
 
 
-(defn make-compute-async [{:keys [compute promise? then]}]
+(defn make-compute-async [{:keys [compute then]}]
   (fn compute-async [{:keys [deps] :as ctxt}]
-    (if-not (promise? deps)
-      (compute ctxt)
-      (-> deps
-          (then (fn [realized-deps]
-                  (-> ctxt
-                      (assoc :deps realized-deps)
-                      compute)))))))
+    (-> deps
+        (then (fn [realized-deps]
+                (-> ctxt
+                    (assoc :deps realized-deps)
+                    compute))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Execution fns
@@ -146,6 +144,11 @@
                                    (get computations computation-name))))
           (transient inputs)
           order)))))
+
+
+(defn make-execute-computations-async [{:keys [execute-computations combine-mixed-map]}]
+  (fn execute-computations-async [& args]
+    (combine-mixed-map (apply execute-computations args))))
 
 
 (defn make-run [{:keys [execute-computations split-config]}]
