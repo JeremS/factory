@@ -4,6 +4,7 @@
    [fr.jeremyschoffen.factory.v1.computations.common :as cc]
    [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]))
 
+
 ;; -----------------------------------------------------------------------------
 ;; Config -> system
 ;; -----------------------------------------------------------------------------
@@ -122,28 +123,28 @@
 
      :run-pre-start (cc/c make-phase-runner
                           {:execute-computations-on-deps :execute-computations}
-                          (cc/options
+                          (cc/values
                             :phase-name :pre-start
                             :keep-state false
                             :reverse-order false))
 
      :run-start (cc/c make-phase-runner
                       {:execute-computations-on-deps :execute-computations}
-                      (cc/options
+                      (cc/values
                         :phase-name :start
                         :keep-state true
                         :reverse-order false))
 
      :run-post-start (cc/c make-phase-runner
                            {:execute-computations-on-current-val :execute-computations}
-                           (cc/options
+                           (cc/values
                              :phase-name :post-start
                              :keep-state false
                              :reverse-order false))
 
      :run-stop (cc/c make-phase-runner
                      {:execute-computations-on-current-val :execute-computations}
-                     (cc/options
+                     (cc/values
                        :phase-name :stop
                        :keep-state false
                        :reverse-order true))}))

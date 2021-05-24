@@ -6,7 +6,7 @@
 
 
 (def example-deps
-  [:a :b {:namespaced/a :a} ^::common/options {:opt1 1} (common/options :opt2 2)])
+  [:a :b {:namespaced/a :a} ^::common/values {:opt1 1} (common/values :opt2 2)])
 
 
 (def parsed (common/parse-deps example-deps))

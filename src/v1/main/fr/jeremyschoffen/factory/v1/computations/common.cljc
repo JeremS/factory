@@ -10,13 +10,13 @@
 ;; -----------------------------------------------------------------------------
 ;; Computation representation
 ;; -----------------------------------------------------------------------------
-(defn options? [m]
+(defn values? [m]
   (and (map? m)
-       (-> m meta ::options)))
+       (-> m meta ::values)))
 
 
-(defn options [& {:as opts}]
-  (with-meta opts {::options true}))
+(defn values [& {:as opts}]
+  (with-meta opts {::values true}))
 
 
 (defn computation? [x]
@@ -27,8 +27,8 @@
   (m/find deps
     (m/seqable (m/or (m/pred keyword? !deps)
                      (m/pred sequential? (m/seqable !deps ...))
-                     (m/pred options? !opts)
-                     (m/and (m/pred (complement options?))
+                     (m/pred values? !opts)
+                     (m/and (m/pred (complement values?))
                             (m/map-of !names-from !names-to)))
                ...)
     {:deps (s/union
