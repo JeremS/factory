@@ -93,14 +93,14 @@
 
 (defn make-combine-mixed-map [{:keys [combine-map promise? then]}]
   (fn combine-mixed-map [m]
-    (let [{realized-deps false
-           deferred-deps true} (u/split-map m promise?)]
-      (if (empty? deferred-deps)
-        realized-deps
-        (-> deferred-deps
+    (let [{realized-part false
+           deferred-part true} (u/split-map m promise?)]
+      (if (empty? deferred-part)
+        realized-part
+        (-> deferred-part
             combine-map
             (then (fn [newly-realized-deps]
-                    (merge realized-deps newly-realized-deps))))))))
+                    (merge realized-part newly-realized-deps))))))))
 
 
 (defn make-gather-deps-async [{:keys [combine-mixed-map gather-deps]}]
