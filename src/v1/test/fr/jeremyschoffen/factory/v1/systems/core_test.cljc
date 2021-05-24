@@ -101,22 +101,19 @@
 ;; -----------------------------------------------------------------------------
 ;; Extract the order compuations have been scheduled
 ;; -----------------------------------------------------------------------------
-(def starting-actions
+(defn index-actions-order [recording]
   (into {}
         (comp
           (map :action)
           (map-indexed (fn [i action]
                          [action i])))
-        start-record))
+        recording))
 
 
-(def stopping-actions
-  (into {}
-        (comp
-          (map :action)
-          (map-indexed (fn [i action]
-                         [action i])))
-        stop-record))
+(def starting-actions (index-actions-order start-record))
+
+
+(def stopping-actions (index-actions-order stop-record))
 
 
 (defn done-before? [index x y]
