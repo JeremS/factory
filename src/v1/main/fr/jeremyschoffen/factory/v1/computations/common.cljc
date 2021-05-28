@@ -138,10 +138,14 @@
       (persistent!
         (reduce
           (fn [state computation-name]
-            (assoc! state computation-name
-              (execute-computation state
-                                   computation-name
-                                   (get computations computation-name))))
+            (let [res (try (execute-computation state
+                                                computation-name
+                                                (get computations computation-name))
+                           (catch #?@(:clj [Exception e] :cljs [:default e])
+                             (throw (ex-info (str "Error while running: " computation-name)
+                                             {:current-state (persistent! state)}
+                                             e))))]
+              (assoc! state computation-name res)))
           (transient inputs)
           order)))))
 
