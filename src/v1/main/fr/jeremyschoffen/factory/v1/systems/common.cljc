@@ -121,26 +121,12 @@
                                                 :gather-deps
                                                 {:compute-on-current-val :compute})
 
-     :run-pre-start (cc/c make-phase-runner
-                          {:execute-computations-on-deps :execute-computations}
-                          (cc/values
-                            :phase-name :pre-start
-                            :keep-state false
-                            :reverse-order false))
-
      :run-start (cc/c make-phase-runner
                       {:execute-computations-on-deps :execute-computations}
                       (cc/values
                         :phase-name :start
                         :keep-state true
                         :reverse-order false))
-
-     :run-post-start (cc/c make-phase-runner
-                           {:execute-computations-on-current-val :execute-computations}
-                           (cc/values
-                             :phase-name :post-start
-                             :keep-state false
-                             :reverse-order false))
 
      :run-stop (cc/c make-phase-runner
                      {:execute-computations-on-current-val :execute-computations}

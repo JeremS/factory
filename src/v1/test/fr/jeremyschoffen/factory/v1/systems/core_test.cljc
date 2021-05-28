@@ -35,15 +35,8 @@
 ;; -----------------------------------------------------------------------------
 ;; Test system def
 ;; -----------------------------------------------------------------------------
-(def create-database (c :create-database :created-db
-                        {:datomic-url :url}))
-
-
 (def connect-to-db (c :connect-to-db :db-conn
                       {:datomic-url :url}))
-
-
-(def seed-connection (c :seed-connection :seeded-conn))
 
 
 (def make-handler (c :make-handler :web-handler
@@ -69,10 +62,7 @@
    {:datomic-url "datomic:mem://newdb"}
 
    :components
-   {:db {:pre-start create-database
-         :start connect-to-db
-         :post-start seed-connection}
-
+   {:db {:start connect-to-db}
     :handler {:start make-handler}
     :http {:start start-server
            :stop close-server}
@@ -124,11 +114,9 @@
 (deftest ordering
   (testing "start"
     (are [x y] (done-before? starting-actions x y)
-         :create-database :connect-to-db
          :connect-to-db :make-handler
          :make-handler :start-server
-         :start-server :make-foo
-         :make-foo :seed-connection))
+         :start-server :make-foo))
   (testing "stop"
     (is (done-before? stopping-actions :stop-foo :close-server))))
 
