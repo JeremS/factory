@@ -1,4 +1,8 @@
-(ns fr.jeremyschoffen.factory.v1.utils
+(ns ^{:author "Jeremy Schoffen"
+      :doc "
+Utility functions.
+      "}
+  fr.jeremyschoffen.factory.v1.utils
   (:require
     [meander.epsilon :as m]))
 
@@ -19,5 +23,4 @@
                (if (even? v)
                  :even
                  :odd))))
-
 

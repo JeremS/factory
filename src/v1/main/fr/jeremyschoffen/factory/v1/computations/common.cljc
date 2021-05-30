@@ -60,8 +60,7 @@
         (seq options) (wrap-merge-opts options)
         (seq alias-map) (wrap-rename-keys alias-map))
       (vary-meta  merge
-        {`p/dependent? (constantly true)
-         `p/dependencies (constantly deps)
+        {`p/dependencies (constantly deps)
          ::computation true}))))
 
 
