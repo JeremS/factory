@@ -120,3 +120,66 @@
   (testing "stop"
     (is (done-before? stopping-actions :stop-foo :close-server))))
 
+
+
+;; -----------------------------------------------------------------------------
+;; Sytem with error
+;; -----------------------------------------------------------------------------
+
+(def start-a (c :start-a :a))
+(def start-b (c :start-b :b))
+(def start-c (c :start-c :c :a :b))
+(def start-d (c :start-d :d))
+
+(defn start-e [arg]
+  (throw (ex-info "Error starting e." {})))
+
+(def stop-a (c :stop-a :a))
+(def stop-b (c :stop-b :b))
+(def stop-c (c :stop-c :c))
+(def stop-d (c :stop-d :d))
+(def stop-e (c :stop-e :e))
+
+
+
+(def conf2
+  {:components
+   {:a {:start start-a
+        :stop stop-a}
+    :b {:start start-b
+        :stop stop-b}
+    :c {:start start-c
+        :stop stop-c}
+    :d {:start start-d
+        :stop stop-d}
+    :e {:start (s/c start-e :c :d)
+        :stop stop-e}}})
+
+
+(def system2 (s/system conf2))
+(def started2 (try
+                (s/start system2)
+                (catch #?@(:clj [Exception e] :cljs [:default e])
+                  e)))
+
+(def partialy-started2 (-> started2 ex-data :partialy-started-system))
+
+(def partial-state2 (:partial-state partialy-started2))
+
+(def recorded-partial-stop2 (record-computations #(s/stop-partialy-started partialy-started2)))
+
+(def partial-stop-record2 (:record recorded-partial-stop2))
+
+(def indexed-stopping-actions2 (index-actions-order partial-stop-record2))
+
+(def stopped-components2 (->> partial-stop-record2
+                           (map :component-name)
+                           set))
+
+
+(deftest start-error
+  (testing "system started up to error"
+    (is (= (-> partial-state2 keys set) #{:a :b :c :d})))
+
+  (testing "we don't stop the faulty component"
+    (is (= stopped-components2 #{:a :b :c :d}))))

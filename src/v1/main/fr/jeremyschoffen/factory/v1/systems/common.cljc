@@ -60,7 +60,8 @@
   (-> components components->computations-maps computations-maps->phases))
 
 
-(defn conf->system [{:keys [inputs components]}]
+(defn conf->system [{:keys [inputs components]
+                     :or {inputs {}}}]
   (let [phases (components->phases components)
         start-phase (get phases :start)
         {start-computations :computations
@@ -83,24 +84,6 @@
   (computation current-value))
 
 
-(defn make-phase-runner [{:keys [execute-computations phase-name keep-state reverse-order]
-                          :or {keep-state true reverse-order false}}]
-  (fn [{:keys [state phases order] :as system}]
-    (let [phase (get phases phase-name)
-          {:keys [computations computation-names]} phase
-          order (cond-> (filterv computation-names order)
-                  reverse-order rseq)
-          new-state (execute-computations state computations order)]
-       (cond-> system
-         keep-state (assoc :state new-state)))))
-
-
-(defn make-phase-runner-async [{:keys [combine-mixed-map] :as deps}]
-  (let [run-phase (make-phase-runner deps)]
-    (fn [map-arg]
-      (-> map-arg run-phase combine-mixed-map))))
-
-
 ;; -----------------------------------------------------------------------------
 ;; Api configs
 ;; -----------------------------------------------------------------------------
@@ -119,21 +102,7 @@
 
      :execute-computations-on-current-val (cc/c cc/make-execute-computations
                                                 :gather-deps
-                                                {:compute-on-current-val :compute})
-
-     :run-start (cc/c make-phase-runner
-                      {:execute-computations-on-deps :execute-computations}
-                      (cc/values
-                        :phase-name :start
-                        :keep-state true
-                        :reverse-order false))
-
-     :run-stop (cc/c make-phase-runner
-                     {:execute-computations-on-current-val :execute-computations}
-                     (cc/values
-                       :phase-name :stop
-                       :keep-state false
-                       :reverse-order true))}))
+                                                {:compute-on-current-val :compute})}))
 
 
 (def impl-async
