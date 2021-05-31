@@ -1,4 +1,8 @@
-(ns fr.jeremyschoffen.factory.v1.dependencies.graph
+(ns ^{:author "Jeremy Schoffen"
+      :doc "
+Collection of utilities used to create, analyse and manipulate dependency graphs.
+      "}
+  fr.jeremyschoffen.factory.v1.dependencies.graph
   (:require
     [loom.graph :as loom]
     [loom.alg :as loom-alg]
@@ -6,46 +10,66 @@
     [meander.epsilon :as m]
     [fr.jeremyschoffen.factory.v1.dependencies.protocols :as p]))
 
+
 ;; -----------------------------------------------------------------------------
 ;; Graph creation
 ;; -----------------------------------------------------------------------------
-(defn edges-for-computation [computation-name computation]
-  (-> computation
+(defn edges-for-dependent
+  "Given a dependent and its name, return a vector of edges used to create a
+  dependency graph."
+  [dependent-name dependent]
+  (-> dependent
     p/dependencies
     (m/rewrite
       (m/seqable !parent-name ...)
-      [[!parent-name ~computation-name] ...])))
+      [[!parent-name ~dependent-name] ...])))
 
 
-(defn edges-for-computations-map [m]
-  (mapcat #(apply edges-for-computation %) m))
+(defn edges-for-computations-map
+  "Given a map of dependents, return a vector of edges used to create a
+  dependency graph."
+  [m]
+  (mapcat #(apply edges-for-dependent %) m))
 
 
-(defn make-graph [computation-map]
+(defn make-graph
+  "Given a map of dependents return a dependency graph."
+  [computation-map]
   (apply loom/digraph
          (edges-for-computations-map computation-map)))
-
 
 ;; -----------------------------------------------------------------------------
 ;; Utils
 ;; -----------------------------------------------------------------------------
-(def nodes loom/nodes)
+(def ^{:arglists '([g])} nodes
+  "Return a collection the nodes in a graph."
+  loom/nodes)
 
 
-(def edges loom/edges)
+(def ^{:arglists '([g])} edges
+  "Return a collection the edges in a graph."
+  loom/edges)
 
 
-(def successors loom/successors)
+(def ^{:arglists '([g] [g node-name])} successors
+  "Return the successors of `node-name` in the graph `g` or a partial application of this function."
+  loom/successors)
 
 
-(def predecessors loom/predecessors)
+(def ^{:arglists '([g] [g node-name])} predecessors
+  "Return the successors of `node-name` in the graph `g` or a partial application of this function."
+  loom/predecessors)
 
 
-(defn starting-point? [dependency-graph node-name]
+(defn starting-point?
+  "Checks wether or not a node is a starting point in the graph, aka a node without dependencies."
+  [dependency-graph node-name]
   (empty? (predecessors dependency-graph node-name)))
 
 
-(defn starting-points [dependency-graph]
+(defn starting-points
+  "Get a set of all sarting points in a graph."
+  [dependency-graph]
   (into #{}
         (filter (partial starting-point? dependency-graph))
         (nodes dependency-graph)))
