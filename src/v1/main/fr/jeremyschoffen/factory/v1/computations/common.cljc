@@ -93,7 +93,7 @@ Common building blocks used to execute DAGs of interdepent computations.
 
 
 (defn computations-order
-  "Get a topological sort from a dependency graph in which non computations are filterded out. This gives us a valid order in which to run the computations."
+  "Get a topological sort from a dependency graph in which non computations are filtered out. This gives us a valid order in which to run the computations."
   [dependency-graph computation-names]
   (->> dependency-graph
     g/topsort
