@@ -32,65 +32,6 @@
     deps))
 
 
-;; -----------------------------------------------------------------------------
-;; Test system def
-;; -----------------------------------------------------------------------------
-(def connect-to-db (c :connect-to-db :db-conn
-                      {:datomic-url :url}))
-
-
-(def make-handler (c :make-handler :web-handler
-                     :db))
-
-
-(def start-server (c :start-server :web-server
-                     :handler))
-
-
-(def close-server (c :close-server :closed-server))
-
-
-(def make-foo (c :make-foo :foo
-                 :http))
-
-
-(def stop-foo (c :stop-foo :stopped-foo))
-
-
-(def example-config
-  {:inputs
-   {:datomic-url "datomic:mem://newdb"}
-
-   :components
-   {:db {:start connect-to-db}
-    :handler {:start make-handler}
-    :http {:start start-server
-           :stop close-server}
-    :foo {:start make-foo
-          :stop stop-foo}}})
-
-
-
-(def example-system (s/system example-config))
-
-
-
-;; -----------------------------------------------------------------------------
-;; Start & stop the test system while recording
-;; -----------------------------------------------------------------------------
-(def recorded-start (record-computations #(s/start example-system)))
-
-(def start-record (:record recorded-start))
-(def started-system (:res recorded-start))
-
-(def recorded-stop (record-computations #(s/stop started-system)))
-(def stop-record (:record recorded-stop))
-(def stopped-system (:res recorded-stop))
-
-
-;; -----------------------------------------------------------------------------
-;; Extract the order compuations have been scheduled
-;; -----------------------------------------------------------------------------
 (defn index-actions-order [recording]
   (into {}
         (comp
@@ -100,86 +41,112 @@
         recording))
 
 
-(def starting-actions (index-actions-order start-record))
-
-
-(def stopping-actions (index-actions-order stop-record))
-
-
 (defn done-before? [index x y]
   (< (index x)
      (index y)))
 
 
-(deftest ordering
-  (testing "start"
-    (are [x y] (done-before? starting-actions x y)
-         :connect-to-db :make-handler
-         :make-handler :start-server
-         :start-server :make-foo))
-  (testing "stop"
-    (is (done-before? stopping-actions :stop-foo :close-server))))
-
-
 
 ;; -----------------------------------------------------------------------------
-;; Sytem with error
+;; Definition of a test system
 ;; -----------------------------------------------------------------------------
-
 (def start-a (c :start-a :a))
 (def start-b (c :start-b :b))
 (def start-c (c :start-c :c :a :b))
 (def start-d (c :start-d :d))
+(def start-e (c :start-e :e :c :d))
 
-(defn start-e [arg]
-  (throw (ex-info "Error starting e." {})))
 
-(def stop-a (c :stop-a :a))
-(def stop-b (c :stop-b :b))
+
 (def stop-c (c :stop-c :c))
 (def stop-d (c :stop-d :d))
 (def stop-e (c :stop-e :e))
 
-
-
-(def conf2
+(def conf
   {:components
-   {:a {:start start-a
-        :stop stop-a}
-    :b {:start start-b
-        :stop stop-b}
+   {:a {:start start-a}
+    :b {:start start-b}
     :c {:start start-c
         :stop stop-c}
     :d {:start start-d
         :stop stop-d}
-    :e {:start (s/c start-e :c :d)
+    :e {:start start-e
         :stop stop-e}}})
 
 
-(def system2 (s/system conf2))
-(def started2 (try
-                (s/start system2)
-                (catch #?@(:clj [Exception e] :cljs [:default e])
-                  e)))
-
-(def partialy-started2 (-> started2 ex-data :partialy-started-system))
-
-(def partial-state2 (:partial-state partialy-started2))
-
-(def recorded-partial-stop2 (record-computations #(s/stop-partialy-started partialy-started2)))
-
-(def partial-stop-record2 (:record recorded-partial-stop2))
-
-(def indexed-stopping-actions2 (index-actions-order partial-stop-record2))
-
-(def stopped-components2 (->> partial-stop-record2
-                           (map :component-name)
-                           set))
+(def system (s/system conf))
+(def recorded-start (record-computations #(s/start system)))
+(def recorded-stop (record-computations #(-> recorded-start :res s/stop)))
 
 
-(deftest start-error
-  (testing "system started up to error"
-    (is (= (-> partial-state2 keys set) #{:a :b :c :d})))
+(def starting-actions (-> recorded-start :record index-actions-order))
+(def stopping-actions (-> recorded-stop :record index-actions-order))
+
+(deftest ordering
+  (testing "start"
+    (are [x y] (done-before? starting-actions x y)
+         :start-a :start-c
+         :start-b :start-c
+         :start-d :start-e
+         :start-c :start-e))
+  (testing "stop"
+    (are [x y] (done-before? stopping-actions x y)
+             :stop-e :stop-c
+             :stop-e :stop-d)))
+
+;; -----------------------------------------------------------------------------
+;; Testing component restriction
+;; -----------------------------------------------------------------------------
+(def restricted-system (s/system conf [:a :c]))
+(def restricted-recorded-start (record-computations #(s/start restricted-system)))
+(def restricted-recorded-stop (record-computations #(-> restricted-recorded-start :res s/stop)))
+
+(def restricted-starting-actions (-> restricted-recorded-start :record index-actions-order))
+(def restricted-stopping-actions (-> restricted-recorded-stop :record index-actions-order))
+
+
+(deftest resticted-case
+  (testing "started all the necessary components in order"
+    (are [x y] (done-before? restricted-starting-actions x y)
+         :start-a :start-c
+         :start-b :start-c))
+  (testing "stopped the necessary component"
+    (is (contains? restricted-stopping-actions :stop-c))))
+
+
+;; -----------------------------------------------------------------------------
+;; Testing error case
+;; -----------------------------------------------------------------------------
+(defn start-e-error [_]
+  (throw (ex-info "Error starting e." {})))
+
+
+(def conf-error (assoc-in conf [:components :e :start] (s/c start-e-error :c :d)))
+
+(def system-error (s/system conf-error))
+
+(def started-error (try
+                     (s/start system-error)
+                     (catch #?@(:clj [Exception e] :cljs [:default e])
+                       e)))
+
+(def partialy-started (-> started-error ex-data :partialy-started-system))
+
+(def partial-state (:partial-state partialy-started))
+
+(def recorded-partial-stop (record-computations #(s/stop-partialy-started partialy-started)))
+
+(def partial-stop-record (:record recorded-partial-stop))
+
+(def partial-stopped-components (->> partial-stop-record
+                                  (map :component-name)
+                                  set))
+
+
+(deftest error-case
+  (testing "system is started up to error"
+    (is (= (-> partial-state keys set) #{:a :b :c :d})))
 
   (testing "we don't stop the faulty component"
-    (is (= stopped-components2 #{:a :b :c :d}))))
+    (is (= partial-stopped-components #{:c :d}))))
+

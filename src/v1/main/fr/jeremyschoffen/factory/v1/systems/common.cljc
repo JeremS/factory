@@ -60,17 +60,36 @@
   (-> components components->computations-maps computations-maps->phases))
 
 
-(defn conf->system [{:keys [inputs components]
-                     :or {inputs {}}}]
-  (let [phases (components->phases components)
-        start-phase (get phases :start)
-        {start-computations :computations
-         start-computations-names :computation-names} start-phase
-        dependency-graph (g/make-graph start-computations)
-        order (cc/computations-order dependency-graph start-computations-names)]
-    {:state inputs
-     :phases phases
-     :order order}))
+(defn conf->system
+  "Create a system from a `config` map, if a `component-names` sequence is given, only these
+  components (and their dependencies) will be started, stopped...
+
+  `config` must be a map of the following keys:
+  - `:inputs`: a map that presumably contains configuration values for components,
+    each key being able to be used as a dependency in components compuations.
+  - `:components`: a map of components.
+
+  Components are maps of operation names (like `:start` or `:stop`) to computations."
+  ([config]
+   (conf->system config #{}))
+  ([config component-names]
+   (let [{:keys [inputs components] :or {inputs {}}} config
+         phases (components->phases components)
+         start-phase (get phases :start)
+         {start-computations :computations
+          start-computations-names :computation-names} start-phase
+         dependency-graph (g/make-graph start-computations)
+         active-components (if (empty? component-names)
+                             start-computations-names
+                             (->> component-names
+                                  set
+                                  (g/reachable-from-nodes (g/predecessors dependency-graph))
+                                  (filter start-computations-names)
+                                  set))
+         order (cc/computations-order dependency-graph active-components)]
+     {:state inputs
+      :phases phases
+      :order order})))
 
 
 ;; -----------------------------------------------------------------------------
