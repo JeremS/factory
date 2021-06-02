@@ -24,7 +24,8 @@ Basic implementation of a `computations-config` runner using the building blocks
   (computation deps))
 
 
-(def ^:private execute-computations
+(def ^{:arglists '([initial-state computations order])} execute-computations
+  "Execute the `computations` map in `order` starting with an `initial-state` as inputs."
   (common/make-execute-computations
     {:gather-deps select-keys
      :compute compute}))
