@@ -2,12 +2,12 @@
   (:require
     #?(:clj  [clojure.test :refer (deftest testing is)]
        :cljs [cljs.test :refer-macros (deftest testing is)])
-    [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]
-    [loom.graph :as loom]))
+    [fr.jeremyschoffen.factory.v1.dependencies.mini-loom :as mini-loom]
+    [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]))
 
 
 (def example-graph
-  (loom/digraph
+  (mini-loom/digraph
     [:a :x]
     [:b :x]
     [:c :y]
@@ -15,7 +15,7 @@
 
 
 (def cyclical-graph
-  (loom/add-edges example-graph [:y :a]))
+  (mini-loom/add-edges example-graph [:y :a]))
 
 
 (def n->order
@@ -43,8 +43,8 @@
                  (g/topsort cyclical-graph)))))
 
 
-(def s (loom/successors example-graph))
-(def p (loom/predecessors example-graph))
+(def s (mini-loom/successors example-graph))
+(def p (mini-loom/predecessors example-graph))
 
 
 (deftest reach

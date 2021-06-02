@@ -4,10 +4,8 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
       "}
   fr.jeremyschoffen.factory.v1.dependencies.graph
   (:require
-    [loom.graph :as loom]
-    [loom.alg :as loom-alg]
-    [loom.alg-generic :as loom-alg-g]
     [meander.epsilon :as m]
+    [fr.jeremyschoffen.factory.v1.dependencies.mini-loom :as mini-loom]
     [fr.jeremyschoffen.factory.v1.dependencies.protocols :as p]))
 
 
@@ -34,31 +32,31 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
 
 (defn make-graph
   "Given a map of dependents return a dependency graph."
-  [computation-map]
-  (apply loom/digraph
-         (edges-for-computations-map computation-map)))
+  [dependents]
+  (mini-loom/digraph* (edges-for-computations-map dependents)))
+
 
 ;; -----------------------------------------------------------------------------
 ;; Utils
 ;; -----------------------------------------------------------------------------
 (def ^{:arglists '([g])} nodes
   "Return a collection the nodes in a graph."
-  loom/nodes)
+  mini-loom/nodes)
 
 
 (def ^{:arglists '([g])} edges
   "Return a collection the edges in a graph."
-  loom/edges)
+  mini-loom/edges)
 
 
 (def ^{:arglists '([g] [g node-name])} successors
   "Return the successors of `node-name` in the graph `g` or a partial application of this function."
-  loom/successors)
+  mini-loom/successors)
 
 
 (def ^{:arglists '([g] [g node-name])} predecessors
   "Return the successors of `node-name` in the graph `g` or a partial application of this function."
-  loom/predecessors)
+  mini-loom/predecessors)
 
 
 (defn starting-point?
@@ -80,7 +78,7 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
 (defn topsort
   "Get a topological order for a graph. Throws when there is a cycle."
   [graph]
-  (if-let [res (loom-alg/topsort graph)]
+  (if-let [res (mini-loom/topsort graph)]
     res
     (throw (ex-info "Cycle in the computation graph"
                     {:graph graph}))))
@@ -100,7 +98,7 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
       (if-not (seq unseen)
         result
         (let [current (first unseen)
-              reachable (loom-alg-g/pre-traverse neighbors current :seen result)]
+              reachable (mini-loom/pre-traverse neighbors current :seen result)]
           (recur
             (into result reachable)
             (rest unseen)))))))
