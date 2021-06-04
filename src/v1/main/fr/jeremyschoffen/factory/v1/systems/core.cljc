@@ -14,7 +14,10 @@
 (def system common/conf->system)
 
 
-(def internal-api (r/run common/impl))
+(def current-value common/current-value)
+
+
+(def ^:private internal-api (r/run common/impl))
 
 
 (def ^:private exec-on-deps (:execute-computations-on-deps internal-api))

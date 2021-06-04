@@ -95,8 +95,16 @@
 ;; -----------------------------------------------------------------------------
 ;; Api building fns
 ;; -----------------------------------------------------------------------------
-(defn compute-on-deps [{:keys [computation deps]}]
-  (computation deps))
+(defn compute-on-deps [{:keys [computation deps current-value]}]
+  (-> deps
+      (vary-meta assoc ::current-value current-value)
+      computation))
+
+
+(defn current-value
+  "Get the current value of a component using its dependencies."
+  [deps]
+  (-> deps meta ::current-value))
 
 
 (defn compute-on-current-val [{:keys [computation current-value]}]

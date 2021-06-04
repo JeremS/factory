@@ -7,6 +7,11 @@
 ;; -----------------------------------------------------------------------------
 ;; Utilities to create a test system and record computations
 ;; -----------------------------------------------------------------------------
+(defn uuid []
+  #?(:clj (java.util.UUID/randomUUID)
+     :cljs (random-uuid)))
+
+
 (def ^:dynamic *record* nil)
 
 
@@ -18,11 +23,13 @@
 
 
 (defn c
-  "Make a generic compuation that can record itself."
+  "Make a generic computation that can record itself."
   [action-name component-name & deps]
   (apply s/c
     (fn [deps]
-      (let [res [component-name deps]
+      (let [res (if-let [this (s/current-value deps)]
+                  this
+                  [(uuid) component-name deps])
             rec {:action action-name
                  :component-name component-name
                  :res res}]
@@ -73,7 +80,9 @@
     :e {:start start-e
         :stop stop-e}}})
 
-
+;; -----------------------------------------------------------------------------
+;; Testing classic start then stop
+;; -----------------------------------------------------------------------------
 (def system (s/system conf))
 (def recorded-start (record-computations #(s/start system)))
 (def recorded-stop (record-computations #(-> recorded-start :res s/stop)))
@@ -94,6 +103,17 @@
              :stop-e :stop-c
              :stop-e :stop-d)))
 
+;; -----------------------------------------------------------------------------
+;; Testing idempotency
+;; -----------------------------------------------------------------------------
+(def first-start (s/start system))
+(def second-start (s/start first-start))
+(def third-start (s/start second-start))
+
+
+(deftest idempotency
+  (is (= (-> first-start :state) (-> second-start :state)))
+  (is (= (-> first-start :state) (-> third-start :state))))
 ;; -----------------------------------------------------------------------------
 ;; Testing component restriction
 ;; -----------------------------------------------------------------------------
