@@ -29,6 +29,7 @@
   #{:clj
     :cljs
     :dev
+    :docs
     :nrepl
     :piggie
     :test})
