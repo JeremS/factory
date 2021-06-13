@@ -7,7 +7,7 @@
 
            :cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}}}
 
-           :dev {:extra-paths ["src/v1/dev" "src/v1/test" "test-resources"]
+           :dev {:extra-paths ["src/dev"]
                  :extra-deps {funcool/promesa {:mvn/version "6.0.0"}
                               manifold/manifold {:mvn/version "0.1.9-alpha4"}
                               manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}}}
@@ -18,10 +18,10 @@
 
            :reveal {:extra-deps {vlaaad/reveal {:mvn/version "1.3.209"}}}
 
-           :docs {:extra-paths ["src/v1/docs"]
+           :docs {:extra-paths ["src/docs"]
                   :extra-deps {fr.jeremyschoffen/prose-alpha {:mvn/version "30"}}}
 
-           :test {:extra-paths ["src/v1/test"]
+           :test {:extra-paths ["src/v1/test" "test-resources"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-541"}
                                lambdaisland/kaocha-cljs {:mvn/version "0.0-51"}
                                funcool/promesa {:mvn/version "6.0.0"}
