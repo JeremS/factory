@@ -7,7 +7,7 @@
 ;; -----------------------------------------------------------------------------
 ;; Utilities to create a test system and record computations
 ;; -----------------------------------------------------------------------------
-(defn uuid []
+(defn make-uuid []
   #?(:clj (java.util.UUID/randomUUID)
      :cljs (random-uuid)))
 
@@ -29,7 +29,7 @@
     (fn [deps]
       (let [res (if-let [this (s/current-value deps)]
                   this
-                  [(uuid) component-name deps])
+                  [(make-uuid) component-name deps])
             rec {:action action-name
                  :component-name component-name
                  :res res}]
