@@ -136,12 +136,20 @@
   (remove-edges* g edges))
 
 
-(defn digraph* [edges]
-  (add-edges* (BasicEditableDigraph. #{} {} {})
-              edges))
+(defn build-graph [g inits]
+  (letfn [(build [g init]
+            (if (sequential? init)
+              (add-edges g init)
+              (add-nodes g init)))]
+    (reduce build g inits)))
 
-(defn digraph [& edges]
-  (digraph* edges))
+
+(defn digraph* [inits]
+  (build-graph (BasicEditableDigraph. #{} {} {}) inits))
+
+
+(defn digraph [& inits]
+  (digraph* inits))
 
 
 ;; -----------------------------------------------------------------------------
