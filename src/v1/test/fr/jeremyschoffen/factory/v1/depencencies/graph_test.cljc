@@ -8,6 +8,7 @@
 
 (def example-graph
   (mini-loom/digraph
+    :z
     [:a :x]
     [:b :x]
     [:c :y]
@@ -31,6 +32,9 @@
 
 
 (deftest topsort
+  (testing "dependency-less nodes appear in the sort result"
+    (is (not= nil (n->order :z))))
+
   (testing "Order validity"
     (is (done-before? :a :x))
     (is (done-before? :b :x))

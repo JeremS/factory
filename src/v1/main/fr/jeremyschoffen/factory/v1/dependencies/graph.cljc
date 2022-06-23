@@ -23,11 +23,17 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
       [[!parent-name ~dependent-name] ...])))
 
 
+(defn inits-for-dependent [dependent-name dependent]
+  (if (empty? (p/dependencies dependent))
+    [dependent-name]
+    (edges-for-dependent dependent-name dependent)))
+
+
 (defn edges-for-computations-map
   "Given a map of dependents, return a vector of edges used to create a
   dependency graph."
   [m]
-  (mapcat #(apply edges-for-dependent %) m))
+  (mapcat #(apply inits-for-dependent %) m))
 
 
 (defn make-graph

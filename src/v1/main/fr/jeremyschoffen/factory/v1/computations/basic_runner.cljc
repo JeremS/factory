@@ -5,7 +5,8 @@ Basic implementation of a `computations-config` runner using the building blocks
   fr.jeremyschoffen.factory.v1.computations.basic-runner
   (:require
     [fr.jeremyschoffen.factory.v1.computations.common :as common]
-    [fr.jeremyschoffen.factory.v1.utils :as u]))
+    [fr.jeremyschoffen.factory.v1.utils :as u]
+    [hyperfiddle.rcf :refer (tests)]))
 
 
 (def ^{:arglists '([f & deps])} c
@@ -48,7 +49,7 @@ Basic implementation of a `computations-config` runner using the building blocks
      :split-config split-config}))
 
 
-(comment
+(tests
   (def config
     {:a 1
      :b 3
@@ -58,7 +59,13 @@ Basic implementation of a `computations-config` runner using the building blocks
            [:a :b])
      :e (c (comp (partial apply +) vals)
            :d
-           {::c :c})})
+           {::c :c})
+     :f (c (fn [_] :no-deps))})
 
-  (run config))
+  (run config) := {:a 1,
+                   :b 3,
+                   ::c -5,
+                   :f :no-deps,
+                   :d 4,
+                   :e -1})
 

@@ -1,6 +1,6 @@
 (ns ^{:author "Jeremy Schoffen"
       :doc "
-Common building blocks used to execute DAGs of interdepent computations.
+Common building blocks used to execute DAGs of interdependent computations.
       "}
   fr.jeremyschoffen.factory.v1.computations.common
   (:require
@@ -8,8 +8,8 @@ Common building blocks used to execute DAGs of interdepent computations.
     [meander.epsilon :as m]
     [fr.jeremyschoffen.factory.v1.dependencies.graph :as g]
     [fr.jeremyschoffen.factory.v1.dependencies.protocols :as p]
-    [fr.jeremyschoffen.factory.v1.utils :as u]))
-
+    [fr.jeremyschoffen.factory.v1.utils :as u]
+    [hyperfiddle.rcf :refer (tests)]))
 
 ;; -----------------------------------------------------------------------------
 ;; Computation representation
@@ -49,9 +49,24 @@ Common building blocks used to execute DAGs of interdepent computations.
      :alias-map (zipmap !names-from !names-to)
      :options (apply merge !opts)}))
 
+(tests
+  (meta (values {:a 1})) := {::values true}
+
+  (parse-deps [:a :b])
+  := {:deps #{:a :b} :alias-map {} :options nil}
+
+  (parse-deps [{::c :c}])
+  := {:deps #{::c} :alias-map {::c :c} :options nil}
+
+  (parse-deps [(values {:d 1}) (values {:e 2})])
+  := {:deps #{} :alias-map {} :options {:d 1 :e 2}}
+
+  (parse-deps [(values {:d 1}) :b {::c :c} (values {:e 2}) :a])
+  := {:deps #{:a :b ::c} :alias-map {::c :c} :options {:d 1 :e 2}})
+
 
 (defn wrap-rename-keys
-  "Wrap a function to be used as compuation in order to manage aliases in a dependencies map."
+  "Wrap a function to be used as computation in order to manage aliases in a dependencies map."
   [f renames]
   (fn [deps]
     (-> deps
@@ -82,6 +97,18 @@ Common building blocks used to execute DAGs of interdepent computations.
         {`p/dependencies (constantly deps)
          ::computation true}))))
 
+(tests
+  (def ex (c (fn [{:keys [a b c d e]}]
+               [a b c d e])
+             (values {:d 1}) :b {::c :c} (values {:e 2}) :a))
+
+  (ex {:a :a :b :b ::c :c}) := [:a :b :c 1 2]
+
+  (def idc (c identity))
+
+  (p/dependencies idc) := #{}
+  (-> idc meta ::computation) := true
+  (computation? idc) := true)
 
 ;; -----------------------------------------------------------------------------
 ;; System info
@@ -216,3 +243,4 @@ Common building blocks used to execute DAGs of interdepent computations.
           dependency-graph (g/make-graph computations)
           order (computations-order dependency-graph computation-names)]
       (execute-computations inputs computations order))))
+
