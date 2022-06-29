@@ -34,7 +34,7 @@
                            (dissoc :state)
                            (assoc :partial-state partial-state))]
           (throw (ex-info "Error while starting the system."
-                          {:partialy-started-system new-system}
+                          {:partially-started-system new-system}
                           e)))))))
 
 
@@ -47,7 +47,7 @@
     (exec-on-current-val state computations order)))
 
 
-(defn stop-partialy-started [{:keys [partial-state phases order] :as system}]
+(defn stop-partially-started [{:keys [partial-state phases order] :as system}]
   (let [phase (:stop phases)
         {:keys [computations computation-names]} phase
         components-to-stop (s/intersection (-> partial-state keys set)

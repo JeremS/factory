@@ -150,11 +150,11 @@
                      (catch #?@(:clj [Exception e] :cljs [:default e])
                        e)))
 
-(def partialy-started (-> started-error ex-data :partialy-started-system))
+(def partially-started (-> started-error ex-data :partially-started-system))
 
-(def partial-state (:partial-state partialy-started))
+(def partial-state (:partial-state partially-started))
 
-(def recorded-partial-stop (record-computations #(s/stop-partialy-started partialy-started)))
+(def recorded-partial-stop (record-computations #(s/stop-partially-started partially-started)))
 
 (def partial-stop-record (:record recorded-partial-stop))
 
