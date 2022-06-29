@@ -64,12 +64,15 @@
   "Create a system from a `config` map, if a `component-names` sequence is given, only these
   components (and their dependencies) will be started, stopped...
 
-  `config` must be a map of the following keys:
-  - `:inputs`: a map that presumably contains configuration values for components,
-    each key being able to be used as a dependency in components compuations.
-  - `:components`: a map of components.
-
-  Components are maps of operation names (like `:start` or `:stop`) to computations."
+  Args:
+  - `config` must be a map of the following keys:
+    - `:inputs`: a map that presumably contains configuration values for components,
+      each key being able to be used as a dependency in components compuations.
+    - `:components`: a map of component-names to components. Components are maps of
+       operation names (like `:start` or `:stop`) to computations.
+  - `component-names`: set of the names of components to activate in the system.
+    If empty all components are considered active.
+    "
   ([config]
    (conf->system config #{}))
   ([config component-names]
@@ -83,7 +86,7 @@
                              start-computations-names
                              (->> component-names
                                   set
-                                  (g/reachable-from-nodes (g/predecessors dependency-graph))
+                                  (g/all-dependencies dependency-graph)
                                   (filter start-computations-names)
                                   set))
          order (cc/computations-order dependency-graph active-components)]

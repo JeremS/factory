@@ -59,5 +59,7 @@
     (is (= (g/reachable-from-nodes p [:c :b]) #{:c :b}))
 
     (is (= (g/reachable-from-node s :y) #{:y}))
-    (is (= (g/reachable-from-node p :y) #{:y :a :b :c :x}))))
+    (is (= (g/reachable-from-node p :y) #{:y :a :b :c :x})))
+  (testing "All dependencies"
+    (is (= (g/reachable-from-nodes p [:y]) (g/all-dependencies example-graph #{:y})))))
 

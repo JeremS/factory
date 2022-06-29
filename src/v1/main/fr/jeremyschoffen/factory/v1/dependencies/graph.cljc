@@ -43,7 +43,7 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
 
 
 ;; -----------------------------------------------------------------------------
-;; Utils
+;; Utilities
 ;; -----------------------------------------------------------------------------
 (def ^{:arglists '([g])} nodes
   "Return a collection the nodes in a graph."
@@ -77,6 +77,7 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
   (into #{}
         (filter (partial starting-point? dependency-graph))
         (nodes dependency-graph)))
+
 
 ;; -----------------------------------------------------------------------------
 ;; Algorithms
@@ -119,4 +120,15 @@ Collection of utilities used to create, analyse and manipulate dependency graphs
   - `neighbors`: a function node -> neighbors"
   [neighbors node]
   (reachable-from-nodes neighbors #{node}))
+
+
+(defn all-dependencies
+  "Return all the nodes of a graph that are directly or transitively dependencies of a set of nodes.
+  The originale set `nodes` is included in the result set.
+
+  Args:
+  - `dependency-graph`: a dependency graph
+  - `nodes`: set of nodes used to find all parent nodes."
+  [dependency-graph nodes]
+  (reachable-from-nodes (predecessors dependency-graph) nodes))
 
