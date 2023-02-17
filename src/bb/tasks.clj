@@ -18,6 +18,7 @@
   (println "Calling clojure: " cmd-string-arg)
   (t/clojure cmd-string-arg))
 
+
 ;; -----------------------------------------------------------------------------
 ;; Repl task
 ;; -----------------------------------------------------------------------------
@@ -34,28 +35,10 @@
     :piggie
     :test})
 
+
 (defn repl []
   (clojure (repl-cmd-args repl-nrepl-aliases
                           repl-nrepl-middleware)))
-
-
-;; -----------------------------------------------------------------------------
-;; Reveal task
-;; -----------------------------------------------------------------------------
-(def reveal-nrepl-middleware
-  (conj repl-nrepl-middleware
-        'vlaaad.reveal.nrepl/middleware))
-
-
-(def reveal-nrepl-aliases
-  (conj repl-nrepl-aliases
-        :reveal))
-
-
-(defn reveal []
-  (clojure (repl-cmd-args reveal-nrepl-aliases
-                            reveal-nrepl-middleware)))
-
 
 ;; -----------------------------------------------------------------------------
 ;; Tests
