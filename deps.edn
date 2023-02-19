@@ -1,7 +1,8 @@
-{:paths ["src/v1/main"]
+{:paths ["src/main"]
 
  :deps {meander/epsilon {:mvn/version "0.0.650"}
         medley/medley {:mvn/version "1.4.0"}
+        aysylu/loom {:mvn/version "1.0.2"}
         com.hyperfiddle/rcf {:mvn/version "20220926-202227"}}
 
  :aliases {:clj {:extra-deps {org.clojure/clojure {:mvn/version "1.11.1"}}}
@@ -11,7 +12,8 @@
            :dev {:extra-paths ["src/dev"]
                  :extra-deps {funcool/promesa {:mvn/version "10.0.594"}
                               manifold/manifold {:mvn/version "0.3.0"}
-                              manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}}}
+                              manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}
+                              datascript/datascript {:mvn/version "1.4.0"}}}
 
            :nrepl  {:extra-deps {nrepl/nrepl      {:mvn/version "1.0.0"}}}
 
@@ -20,7 +22,7 @@
            :docs {:extra-paths ["src/docs"]
                   :extra-deps {fr.jeremyschoffen/prose-alpha {:mvn/version "30"}}}
 
-           :test {:extra-paths ["src/v1/test" "test-resources"]
+           :test {:extra-paths ["src/test" "test-resources"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.77.1236"}
                                lambdaisland/kaocha-cljs {:mvn/version "1.4.130"}
                                funcool/promesa {:mvn/version "10.0.594"}

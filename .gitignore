@@ -4,3 +4,9 @@ node_modules
 out
 .cljs_node_repl
 .nrepl-port
+
+
+# Utilities
+/.lsp
+.clj-kondo/**
+!.clj-kondo/config.edn

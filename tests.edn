@@ -1,11 +1,11 @@
 #kaocha/v1
     {:tests [{:id :unit-clj
-              :source-paths ["src/v1/main"]
-              :test-paths ["src/v1/test/"]
+              :source-paths ["srcmain"]
+              :test-paths ["src/test/"]
               :ns-patterns ["-test$"]}
 
              {:id :unit-cljs
               :type :kaocha.type/cljs
-              :source-paths ["src/v1/main/"]
-              :test-paths ["src/v1/test/"]
+              :source-paths ["src/main/"]
+              :test-paths ["src/test/"]
               :ns-patterns ["-test$"]}]}

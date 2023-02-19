@@ -1,11 +1,8 @@
 {:paths ["src/bb"]
 
- :deps {aysylu/loom {:mvn/version "1.0.2"}}
-
  :tasks
  {:requires ([tasks :as t])
   repl t/repl
-  reveal t/reveal
   test-clj t/test-clj
   test-cljs t/test-cljs
   kondo t/kondo}}
