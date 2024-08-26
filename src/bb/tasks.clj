@@ -23,7 +23,8 @@
 ;; Repl task
 ;; -----------------------------------------------------------------------------
 (def repl-nrepl-middleware
-  '[cider.piggieback/wrap-cljs-repl])
+  '[cider.nrepl/cider-middleware
+    cider.piggieback/wrap-cljs-repl])
 
 
 (def repl-nrepl-aliases
@@ -40,6 +41,11 @@
   (clojure (repl-cmd-args repl-nrepl-aliases
                           repl-nrepl-middleware)))
 
+(defn debug []
+  (clojure (repl-cmd-args (-> repl-nrepl-aliases
+                              (disj :clj)
+                              (conj :debug))
+                          repl-nrepl-middleware)))
 ;; -----------------------------------------------------------------------------
 ;; Tests
 ;; -----------------------------------------------------------------------------

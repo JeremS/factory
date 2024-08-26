@@ -1,9 +1,11 @@
-{:paths ["src/bb"]
-
+{:paths ["src/main" "src/dev" "src/bb"]
+ :deps {com.lambdaisland/launchpad {:mvn/version "0.33.149-alpha"}}
  :tasks
  {:requires ([tasks :as t])
-  repl t/repl
-  test-clj t/test-clj
+  dev-old   t/repl
+  debug     t/debug
+  test-clj  t/test-clj
   test-cljs t/test-cljs
-  kondo t/kondo}}
+  kondo     t/kondo}}
+
 
