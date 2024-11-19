@@ -3,7 +3,7 @@
     [clojure.set :as set]
     [hyperfiddle.rcf :refer [tests]]
     [fr.jeremyschoffen.factory.v2.common :as common]
-    [fr.jeremyschoffen.factory.v2.utils :as u]))
+    [fr.jeremyschoffen.factory.v2.core.internal :as i]))
 
 
 ;; -----------------------------------------------------------------------------
@@ -24,38 +24,6 @@
              :renames {::b :b}
              :values {:c 1}})
   := #{:a ::b})
-
-
-;; -----------------------------------------------------------------------------
-;; Apply utility
-;; -----------------------------------------------------------------------------
-
-(defn- parse-args
-  [deps order]
-  (let [[order trailing & r] (u/split-seq-on :& order)
-        _ (when r
-            (throw (ex-info "Error parsing apply order." {:apply-order order})))
-        args (map #(get deps %) order)]
-    (cond-> args
-      trailing (concat (get deps (first trailing))))))
-
-
-(defn- apply-with-order [f deps order]
-  (let [args (parse-args deps order)]
-    (apply f args)))
-
-
-(defn apply-order
-  "Returns function that will apply a argument map to a function that take
-  multiple arguments.
-
-  The application will follow the pattern given with `order`. An example
-  would be having the order `[:a :b :& :c]` to get an application such as
-  (apply f (concat [(:a deps) (:b deps)]
-                   (:c deps))"
-  [order]
-  (fn [f deps]
-    (apply-with-order f deps order)))
 
 
 ;; -----------------------------------------------------------------------------
@@ -173,7 +141,7 @@
   run (:run api))
 
 
-(def ^{:argslist '([factory])'
+(def ^{:argslist '([factory])
        :doc "
        Builds from a factory a function that will run it given an
        inputs map.
@@ -181,11 +149,48 @@
   factory->fn (:factory->fn api))
 
 
-(def ^{:argslist '([factory])'
+(def ^{:argslist '([factory])
        :doc "
        Builds a building block from a factory .
        "}
   factory->bb (:factory->bb api))
+
+
+;; -----------------------------------------------------------------------------
+;; Utilities
+;; -----------------------------------------------------------------------------
+(def ^{:argslist '([order])
+       :doc "
+       Returns function that will apply a argument map to a function that take
+       multiple arguments.
+
+       The application will follow the pattern given with `order`. An example
+       would be having the order `[:a :b :& :c]` to get an application such as
+       (apply f (concat [(:a deps) (:b deps)] [:c deps])
+  "} apply-order i/apply-order)
+
+(def ^{:argslist '([& {:as vs}])
+       :doc "
+       Make a map idendified as values of the building block for use in
+       the [[bb]] constructor.
+       "}
+  values i/values)
+
+
+(def ^{:argslist '([f & opts])
+       :doc "
+       Convenience constructor for building blocks inspired by the computation
+       constructor used in v1.
+
+       opts spec:
+       - keywords: added to deps
+       - sequential: added to deps
+       - values: map made with [[values]] to declare deps values in the
+         building block's deps
+       - maps : merged into renames
+       - function: last one used as custom apply
+       "}
+  bb i/bb)
 
 
 (tests
@@ -210,9 +215,9 @@
           :fn -}
 
 
-     :e3 {:deps #{:e2 :seq}
-          :custom-apply (apply-order [:e2 :& :seq])
-          :fn (fn [n & ns] (apply - n ns))}
+     :e3 (bb (fn [n & ns] (apply - n ns))
+             :e2 :seq
+             (apply-order [:e2 :& :seq]))
 
 
      :f {:deps #{}
