@@ -143,10 +143,10 @@ Lexicon:
 ;; -----------------------------------------------------------------------------
 (defn make-execute-bb
   "Make a function that will execute one building-block."
-  [{:keys [get-deps gather-deps compute]}]
+  [{:keys [get-deps compute]}]
   (fn execute-bb [inputs bb-id bb]
     (let [dep-names (get-deps bb)
-          deps (gather-deps inputs dep-names)
+          deps (u/select-keys! inputs dep-names)
           current-val (get inputs bb-id)]
       (compute {:bb-id bb-id
                 :bb bb
@@ -164,7 +164,6 @@ Lexicon:
 
 (def ^:private execute-bb
   (make-execute-bb {:get-deps :deps
-                    :gather-deps select-keys
                     :compute basic-compute}))
 
 
@@ -182,7 +181,6 @@ Lexicon:
 
   Map arg keys:
   - `get-deps`: get the dependencies of a building block
-  - `gather-deps`: a function
     (state, dependency names) -> map of (dependency names -> dependency val)
   - `compute`: the function that will perform the execution of a building block
 

@@ -56,7 +56,7 @@
 
 (def execute-bb-c
   {:doc "Make a function that executes one building block."
-   :deps #{:get-deps :gather-deps :compute}
+   :deps #{:get-deps :compute}
    :fn common/make-execute-bb})
 
 
@@ -98,7 +98,6 @@
 ;; -----------------------------------------------------------------------------
 (def api-inputs
   {:get-deps get-deps
-   :gather-deps select-keys
    :compute compute})
 
 
