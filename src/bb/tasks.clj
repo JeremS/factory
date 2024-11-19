@@ -42,9 +42,7 @@
                           repl-nrepl-middleware)))
 
 (defn debug []
-  (clojure (repl-cmd-args (-> repl-nrepl-aliases
-                              (disj :clj)
-                              (conj :debug))
+  (clojure (repl-cmd-args (-> repl-nrepl-aliases (disj :clj) (conj :debug))
                           repl-nrepl-middleware)))
 ;; -----------------------------------------------------------------------------
 ;; Tests

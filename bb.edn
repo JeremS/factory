@@ -2,7 +2,7 @@
  :deps {com.lambdaisland/launchpad {:mvn/version "0.33.149-alpha"}}
  :tasks
  {:requires ([tasks :as t])
-  dev-old   t/repl
+  dev       t/repl
   debug     t/debug
   test-clj  t/test-clj
   test-cljs t/test-cljs
