@@ -1,7 +1,4 @@
-◊(require '[fr.jeremyschoffen.prose.alpha.document.lib :as lib])
-◊(require '[fr.jeremyschoffen.prose.alpha.out.html.tags :as html :refer (a)])
-◊(require '[fr.jeremyschoffen.prose.alpha.out.markdown.tags :as md])
-◊(require '[fr.jeremyschoffen.factory.v1.docs.tags :as t])
+◊(require '[fr.jeremyschoffen.factory.docs.tags :as t])
 
 # Computations
 
@@ -41,6 +38,7 @@ We then express the computation with the following:
 ◊t/code-s {
 (require '[fr.jeremyschoffen.factory.v1.computations.basic-runner :as r :refer (c values)])
 }
+
 ◊t/code-s {
 (def stats-config
   {:xs [1 2 3 6] ; inputs are part of the config

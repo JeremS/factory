@@ -1,5 +1,5 @@
-◊(require '[fr.jeremyschoffen.prose.alpha.out.html.tags :as html :refer (a)])
-◊(require '[fr.jeremyschoffen.factory.v1.docs.tags :as t])
+◊(require '[fr.jeremyschoffen.factory.docs.tags :as t])
+
 # Factory
 
 This library aims to provide tools helping in building computations as data.

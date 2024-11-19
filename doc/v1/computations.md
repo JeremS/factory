@@ -1,8 +1,5 @@
 
 
-
-
-
 # Computations
 
 This library provide a way to structure computations similarly to what the
@@ -45,6 +42,7 @@ We then express the computation with the following:
 (require '[fr.jeremyschoffen.factory.v1.computations.basic-runner :as r :refer (c values)])
 
 ```
+
 ```clojure
 
 (def stats-config

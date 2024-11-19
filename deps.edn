@@ -28,7 +28,8 @@
            :piggie {:extra-deps {cider/piggieback {:mvn/version "0.5.3"}}}
 
            :docs {:extra-paths ["src/docs"]
-                  :extra-deps {fr.jeremyschoffen/prose-alpha {:mvn/version "32"}}}
+                  :extra-deps {fr.jeremyschoffen/prose-alpha {:mvn/version "32"}
+                               babashka/fs {:mvn/version "0.5.22"}}}
 
            :test {:extra-paths ["src/test" "test-resources"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.77.1236"}

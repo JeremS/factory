@@ -1,4 +1,4 @@
-(ns fr.jeremyschoffen.factory.v1.docs.tags
+(ns fr.jeremyschoffen.factory.docs.tags
   (:require
     [clojure.string :as string]
     [clojure.repl]
@@ -17,22 +17,30 @@
 ;; -----------------------------------------------------------------------------
 ;; Code samples.
 ;; -----------------------------------------------------------------------------
-(defn clj [& args]
+(defn clj-md-block
+  "Returns a clojure markdown code block."
+  [& args]
   (apply md/code-block {:content-type "clojure"} args))
 
 
-(defmacro code [& body]
+(defmacro code
+  "Make a code block off the given snippet followed by another colde block
+  containing the result of the evaluation of the snippet."
+  [& body]
   (let [body (string/join body)
         read-code (-> body
                     (as-> s (str "(do " s ")"))
                     (reader/read-string*))]
     (lib/<>
-      (clj body)
+      (clj-md-block body)
       "\n;=>\n"
-      (clj read-code))))
+      (clj-md-block read-code))))
 
 
-(defmacro code-s [& body]
+(defmacro code-s
+  "Similar to [[code]] except that the result of the evaluation isn't
+  given in a code block."
+  [& body]
   (let [body (string/join body)
         read-code (-> body
                     (as-> s (str "(do " s ")"))
@@ -42,8 +50,10 @@
       `(do ~read-code ""))))
 
 
-(defmacro source [sym]
-  `(clj
+(defmacro source
+  "Make a code block containing the source code at a given symbol."
+  [sym]
+  `(clj-md-block
      (with-out-str
        (clojure.repl/source ~sym))))
 
