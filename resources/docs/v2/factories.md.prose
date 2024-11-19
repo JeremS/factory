@@ -1,0 +1,89 @@
+◊(require '[fr.jeremyschoffen.factory.docs.tags :as t])
+
+# Factories
+
+This library provides a way to structure computations inspired by what
+the ◊|t/graph provides.
+
+
+There are 2 concepts :
+- building blocks: a building block is a unit of computation with declared
+  dependencies
+- factories: a factory is a map of building blocks
+
+
+Lets take the same example as the one ◊|t/graph
+uses in its readme to illustrate the use of factories.
+
+◊t/code-s {
+  (defn n [{:keys [xs]}]
+    (count xs))
+
+
+  (defn mean [{:keys [xs n]}]
+    (/ (reduce + xs)
+       n))
+
+
+  (defn mean-square [{:keys [xs n]}]
+    (/ (transduce (map #(* % %))
+                  +
+                  0
+                  xs)
+       n))
+
+
+  (defn variance [{:keys [m m2]}]
+    (- m2 (* m m)))
+}
+
+
+Now let make the factory, a map of building blocks:
+
+◊t/code-s {
+(def stats-factory
+  {:n  {:deps #{:xs}
+        :fn n}
+   :m  {:deps #{:xs :n}
+        :fn mean}
+   :m2 {:deps #{:xs :n}
+        :fn mean-square}
+   :v  {:deps #{:m :m2}
+        :fn variance}})
+}
+
+
+◊t/code-s {
+(require '[fr.jeremyschoffen.factory.v2.core :as f :refer [bb]])
+}
+
+
+We can then execute this factory with:
+
+◊t/code {
+  (f/run stats-factory {:xs [1 2 3 6]})
+}
+
+Base on the V1 there is a short hand to assemble building blocks.
+We can declare the factory this way:
+
+◊t/code-s {
+(def stats-factory-2
+  {:n  (bb n :xs)
+   :m  (bb mean :xs :n)
+   :m2 (bb mean-square :xs :n)
+   :v  (bb variance :m :m2)})
+}
+
+We can also turn factories into functions:
+
+◊t/code-s {
+(def f2 (f/factory->fn stats-factory-2))
+}
+
+
+◊t/code {
+  (f2 {:xs [1 2 3 6]})
+}
+
+

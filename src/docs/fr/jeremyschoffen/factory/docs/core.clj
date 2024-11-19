@@ -70,5 +70,6 @@
 
 (comment
   (readme!)
-  (compile-doc! "v1/computations.md.prose"))
+  (compile-doc! "v1/computations.md.prose")
+  (compile-doc! "v2/factories.md.prose"))
 
