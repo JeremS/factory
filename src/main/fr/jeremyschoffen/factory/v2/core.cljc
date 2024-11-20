@@ -260,7 +260,8 @@
   building block's result."
   [dep k]
   {:deps #{dep}
-   :fn k})
+   :fn (fn [m]
+         (get-in m [dep k]))})
 
 
 (defn inputs->factory
