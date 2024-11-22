@@ -124,7 +124,7 @@
   get-input-names (:get-input-names api))
 
 
-(def ^{:argslist '([factory])
+(def ^{:argslists '([factory])
        :doc "
        Returns the dependency graph constructed from a factory.
        "}
