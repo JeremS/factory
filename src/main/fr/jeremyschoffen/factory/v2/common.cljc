@@ -172,7 +172,9 @@ Lexicon:
     (exec state bb-id bb)
     (catch #?@(:clj [Exception e] :cljs [:default e])
       (throw (ex-info (str "Error while running: " bb-id)
-                      {:current-state (persistent! state)}
+                      {:current-state (persistent! state)
+                       :bb-id bb-id
+                       :bb bb}
                       e)))))
 
 
