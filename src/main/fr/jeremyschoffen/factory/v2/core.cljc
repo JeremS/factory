@@ -5,6 +5,7 @@
     [fr.jeremyschoffen.factory.v2.common :as common]
     [fr.jeremyschoffen.factory.v2.core.internal :as i]))
 
+;; TODO: Redo v1 using v2 then get rid of dependencies
 
 ;; -----------------------------------------------------------------------------
 ;; Getting Deps
@@ -121,6 +122,13 @@
     Returns the names of all non building block deps from a factory.
     "}
   get-input-names (:get-input-names api))
+
+
+(def ^{:argslist '([factory])
+       :doc "
+       Returns the dependency graph constructed from a factory.
+       "}
+      factory->graph (:factory->graph api))
 
 
 (def

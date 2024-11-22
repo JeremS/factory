@@ -10,3 +10,5 @@ out
 /.lsp
 .clj-kondo/**
 !.clj-kondo/config.edn
+
+.clerk/**

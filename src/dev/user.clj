@@ -1,5 +1,6 @@
 (ns user
   (:require
+    [nextjournal.clerk :as clerk]
     [clj-reload.core :as r]
     [cljs.repl.node :as node]
     [cider.piggieback :as piggie]
@@ -21,6 +22,7 @@
 
 
 (comment
+  (clerk/serve! {:watch-paths ["src/dev/notebooks"]})
   (reload!)
   (start-node-repl)
   (type 1)

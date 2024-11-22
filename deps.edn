@@ -18,6 +18,7 @@
            :dev {:extra-paths ["src/dev"]
                  :extra-deps {io.github.tonsky/clj-reload {:mvn/version "0.7.1"}
                               cider/cider-nrepl {:mvn/version "0.50.2"}
+                              io.github.nextjournal/clerk {:mvn/version "0.17.1102"}
                               funcool/promesa {:mvn/version "11.0.678"}
                               manifold/manifold {:mvn/version "0.4.3"}
                               manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}
