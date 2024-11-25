@@ -115,12 +115,10 @@
 (def api (common/run-factory api-factory api-inputs))
 
 
-(def
-  ^{:arglists '([factory])
-    :doc
-    "
-    Returns the names of all non building block deps from a factory.
-    "}
+(def ^{:arglists '([factory])
+       :doc "
+       Returns the names of all non building block deps from a factory.
+       "}
   get-input-names (:get-input-names api))
 
 
@@ -128,23 +126,19 @@
        :doc "
        Returns the dependency graph constructed from a factory.
        "}
-      factory->graph (:factory->graph api))
+  factory->graph (:factory->graph api))
 
 
-(def
-  ^{:arglists '([factory inputs])
-    :doc
-    "
-    Run a `factory` with given `inputs`.
-
-    Building block spec:
-    - `:deps`: set of dependencies
-    - `:renames`: map of input-key -> param-key
-    - `:values`: map of values overrinding input values
-    - `:custom-apply`: function that applies the factory's fn to the
-      computated deps map
-
-    "}
+(def ^{:arglists '([factory inputs])
+       :doc "
+       Run a `factory` with given `inputs`.
+       Building block spec:
+       - `:deps`: set of dependencies
+       - `:renames`: map of input-key -> param-key
+       - `:values`: map of values overrinding input values
+       - `:custom-apply`: function that applies the factory's fn to the
+         computated deps map
+       "}
   run (:run api))
 
 
@@ -173,8 +167,9 @@
 
        The application will follow the pattern given with `order`. An example
        would be having the order `[:a :b :& :c]` to get an application such as
-       (apply f (concat [(:a deps) (:b deps)] [:c deps])
-  "} apply-order i/apply-order)
+       (apply f (concat [(:a deps) (:b deps)] [:c deps])) "}
+  apply-order i/apply-order)
+ 
 
 (def ^{:argslist '([& {:as vs}])
        :doc "
