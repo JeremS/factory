@@ -102,7 +102,7 @@
 
 (defn- extract-args
   [deps order]
-  (let [{:keys [arg-names trailing-arg-name] :as o}
+  (let [{:keys [arg-names trailing-arg-name]}
         (parse-args order)
 
         args (map #(get deps %) arg-names)]
@@ -110,18 +110,14 @@
       trailing-arg-name (concat (get deps trailing-arg-name)))))
 
 
-(defn apply-order
-  "Returns function that will apply a argument map to a function that take
-  multiple arguments.
-
-  The application will follow the pattern given with `order`. An example
-  would be having the order `[:a :b :& :c]` to get an application such as
-  (apply f (concat [(:a deps) (:b deps)]
-                   (:c deps))"
-  [order]
+(defn apply-order [order]
   (fn [f deps]
     (let [args (extract-args deps order)]
       (apply f args))))
 
 
+(defn bb-apply [f & args]
+  (let [custom-apply (apply-order args)
+        deps (remove #{:&} args)]
+    (bb f deps custom-apply)))
 

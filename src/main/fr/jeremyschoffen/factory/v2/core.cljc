@@ -195,6 +195,19 @@
   bb i/bb)
 
 
+(def ^{:argslists '([f & deps-names])
+       :doc "
+       Convinience function to write simple buiding blocks using regular functions
+       (as opposed to 1 map arg functions).
+ 
+       `(bb-apply + :a :b)` is equivalent to `(bb + :a :b (apply-order [:a :b]))`
+  
+       `args` are what you'd put into the apply-order vector, other conveniences
+       like renames aren't supported.
+  "}
+  bb-apply i/bb-apply)
+
+
 (tests
   (def inputs
     {:a 1
@@ -212,15 +225,14 @@
          :fn (comp (partial apply +) vals)}
 
 
-     :e2 {:deps #{:d :c}
-          :custom-apply (apply-order [:d :c])
-          :fn -}
+     :e2 (bb-apply - :d :c)
 
 
      :e3 (bb (fn [n & ns] (apply - n ns))
              :e2 :seq
              (apply-order [:e2 :& :seq]))
 
+     :e4 (bb-apply - :e2 :& :seq)
 
      :f {:deps #{}
          :fn (fn [_] :no-deps)}
@@ -240,6 +252,7 @@
     {:d 4, :e -1, :f :no-deps,
      :e2 9
      :e3 3
+     :e4 3
      :r :toto
      :v :titi})
 
