@@ -35,10 +35,14 @@ Utility functions.
    (comp (partition-by #(= % v))
          (remove #(= % [v]))))
   ([v coll]
-   (into (empty coll) (split-seq-on v) coll)))
+   (into [] (split-seq-on v) coll)))
 
 (tests
-  (split-seq-on :b [:a :a :b :a :b :c]) := [[:a :a] [:a] [:c]])
+  (split-seq-on :b [:a :a :b :a :b :c]) := [[:a :a] [:a] [:c]]
+
+  (split-seq-on :& [:e2 :& :seq]) := [[:e2] [:seq]]
+  (split-seq-on :& (list :e2 :& :seq)) := [[:e2] [:seq]])
+
 
 
 (defn split-map-kv
