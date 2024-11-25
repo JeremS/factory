@@ -75,23 +75,39 @@
       :values {:d 1 :e 2}
       :custom-apply ca})
 
+
 (defn bb [f & deps]
   (let [deps (parse-deps deps)]
     (assoc deps :fn f)))
 
-(defn- parse-args
+
+(defn- parse-args [order]
+  (let [[args trailing & r] (u/split-seq-on :& order)
+        [trailing-arg-name & names] trailing]
+    (when r
+      (throw
+        (ex-info
+          "Error parsing apply order, more than one group of trailing args."
+          {:apply-order order})))
+
+    (when names
+      (throw
+        (ex-info
+          "Error parsing apply-order, more than 1 arg in trailing args"
+          {:apply-order order})))
+
+    {:arg-names args
+     :trailing-arg-name trailing-arg-name}))
+
+
+(defn- extract-args
   [deps order]
-  (let [[order trailing & r] (u/split-seq-on :& order)
-        _ (when r
-            (throw (ex-info "Error parsing apply order." {:apply-order order})))
-        args (map #(get deps %) order)]
+  (let [{:keys [arg-names trailing-arg-name] :as o}
+        (parse-args order)
+
+        args (map #(get deps %) arg-names)]
     (cond-> args
-      trailing (concat (get deps (first trailing))))))
-
-
-(defn- apply-with-order [f deps order]
-  (let [args (parse-args deps order)]
-    (apply f args)))
+      trailing-arg-name (concat (get deps trailing-arg-name)))))
 
 
 (defn apply-order
@@ -104,7 +120,8 @@
                    (:c deps))"
   [order]
   (fn [f deps]
-    (apply-with-order f deps order)))
+    (let [args (extract-args deps order)]
+      (apply f args))))
 
 
 
