@@ -1,41 +1,34 @@
 {:paths ["src/main"]
 
- :deps {meander/epsilon {:mvn/version "0.0.650"}
-        medley/medley {:mvn/version "1.4.0"}
-        aysylu/loom {:mvn/version "1.0.2"}
-        com.hyperfiddle/rcf {:mvn/version "20220926-202227"}}
+ :deps {com.hyperfiddle/rcf {:mvn/version "20220926-202227"}}
 
  :aliases {:clj {:extra-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}
 
            :debug {:classpath-overrides {org.clojure/clojure nil}
-                   :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.0-1"}
-                                com.github.flow-storm/flow-storm-dbg {:mvn/version "4.0.1"}}
+                   :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.0-3"}
+                                com.github.flow-storm/flow-storm-dbg {:mvn/version "4.1.1"}}
                    :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
-                              "-Dclojure.storm.instrumentOnlyPrefixes=fr.jeremyschoffen.factory.v2"]}
+                              "-Dclojure.storm.instrumentOnlyPrefixes=fr.jeremyschoffen.factory"]}
 
-           :cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.11.132"}}}
 
            :dev {:extra-paths ["src/dev"]
                  :extra-deps {io.github.tonsky/clj-reload {:mvn/version "0.7.1"}
-                              cider/cider-nrepl {:mvn/version "0.50.2"}
-                              io.github.nextjournal/clerk {:mvn/version "0.17.1102"}
-                              funcool/promesa {:mvn/version "11.0.678"}
-                              manifold/manifold {:mvn/version "0.4.3"}
-                              manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}
-                              datascript/datascript {:mvn/version "1.7.3"}}}
+                              io.github.paintparty/fireworks {:mvn/version "0.10.4"}}}
 
-           :nrepl  {:extra-deps {nrepl/nrepl      {:mvn/version "1.3.0"}}}
 
-           :piggie {:extra-deps {cider/piggieback {:mvn/version "0.5.3"}}}
+           :additional-libs {:extra-deps
+                              {funcool/promesa {:mvn/version "11.0.678"}
+                               manifold/manifold {:mvn/version "0.4.3"}}}
 
-           :docs {:extra-paths ["src/docs"]
-                  :extra-deps {fr.jeremyschoffen/prose-alpha {:mvn/version "32"}
-                               babashka/fs {:mvn/version "0.5.22"}}}
+           :nrepl {:extra-deps {nrepl/nrepl      {:mvn/version "1.3.1"}
+                                cider/cider-nrepl {:mvn/version "0.52.0"}}}
 
-           :test {:extra-paths ["src/test" "test-resources"]
-                  :extra-deps {lambdaisland/kaocha {:mvn/version "1.77.1236"}
-                               lambdaisland/kaocha-cljs {:mvn/version "1.4.130"}
-                               funcool/promesa {:mvn/version "11.0.678"}
-                               manifold/manifold {:mvn/version "0.4.3"}
-                               manifold-cljs/manifold-cljs {:mvn/version "0.1.7-1"}}}}}
 
+           :docs {:extra-paths ["resources" "src/docs"]
+                  :extra-deps {org.scicloj/clay {:mvn/version "2-beta28"}
+                               io.github.nextjournal/clerk {:mvn/version "0.17.1102"}
+                               babashka/fs {:mvn/version "0.5.24"}}}
+
+
+           :test {:extra-paths ["src/test"]
+                  :extra-deps {io.github.noahtheduke/lazytest {:mvn/version "1.5.0"}}}}}

@@ -12,3 +12,4 @@ out
 !.clj-kondo/config.edn
 
 .clerk/**
+/clay-out

@@ -1,5 +1,6 @@
 (ns tasks
   (:require
+    [clojure.string :as string]
     [babashka.tasks :as t]
     [babashka.process :as p]))
 
@@ -23,17 +24,15 @@
 ;; Repl task
 ;; -----------------------------------------------------------------------------
 (def repl-nrepl-middleware
-  '[cider.nrepl/cider-middleware
-    cider.piggieback/wrap-cljs-repl])
+  '[cider.nrepl/cider-middleware])
 
 
 (def repl-nrepl-aliases
   #{:clj
-    :cljs
     :dev
+    :additional-libs
     :docs
     :nrepl
-    :piggie
     :test})
 
 
@@ -47,17 +46,23 @@
 ;; -----------------------------------------------------------------------------
 ;; Tests
 ;; -----------------------------------------------------------------------------
-(defn test-cmd [id]
-  (format "-M:clj:cljs:test -m kaocha.runner %s"
-          id))
+(def test-aliases
+  [:clj :additional-libs  :test])
+
+(def test-dir "src/test")
 
 
-(defn test-clj []
-  (clojure (test-cmd :unit-clj)))
+(def test-invocation
+  (-> (format "-M%s -m lazytest.main -d %s"
+              (aliases->str test-aliases)
+              test-dir)
+      (cons *command-line-args*)
+      (->> (string/join " "))))
 
 
-(defn test-cljs []
-  (clojure (test-cmd :unit-cljs)))
+(defn run-tests [& _]
+  (clojure test-invocation))
+
 
 
 ;; -----------------------------------------------------------------------------

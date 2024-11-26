@@ -1,11 +1,10 @@
 {:paths ["src/main" "src/dev" "src/bb"]
- :deps {com.lambdaisland/launchpad {:mvn/version "0.33.149-alpha"}}
+ :deps {com.hyperfiddle/rcf {:mvn/version "20220926-202227"}}
  :tasks
  {:requires ([tasks :as t])
   dev       t/repl
   debug     t/debug
-  test-clj  t/test-clj
-  test-cljs t/test-cljs
+  test      t/run-tests
   kondo     t/kondo}}
 
 

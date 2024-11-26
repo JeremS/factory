@@ -1,16 +1,10 @@
 (ns user
   (:require
-    [nextjournal.clerk :as clerk]
     [clj-reload.core :as r]
-    [cljs.repl.node :as node]
-    [cider.piggieback :as piggie]
     [hyperfiddle.rcf]))
 
+
 (hyperfiddle.rcf/enable!)
-
-
-(defn start-node-repl []
-  (piggie/cljs-repl (node/repl-env)))
 
 
 (r/init
@@ -22,8 +16,6 @@
 
 
 (comment
+  (require '[nextjournal.clerk :as clerk])
   (clerk/serve! {:watch-paths ["src/dev/notebooks"]})
-  (reload!)
-  (start-node-repl)
-  (type 1)
-  :cljs/quit)
+  (reload!))
