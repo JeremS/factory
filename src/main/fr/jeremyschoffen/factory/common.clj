@@ -196,9 +196,18 @@ Lexicon:
   (make-execute-bbs {:execute-bb execute-bb}))
 
 
-(defn- compute-order
-  "Returns the execution order for a factory. It does so by filtering for the
-  building blocks ids in a topological sort of the dependency graph."
+(defn compute-order
+  "Returns the execution order for a factory.
+
+  The order is computated these steps:
+  1. a graph is made from the factory
+  2. the graph is analysed to give an order, usually a topological sort
+  3. the topological order is filtered for building blocks id giving us the
+     order.
+
+  The function `graph->order` must return `nil` when detecting a cycle. This
+  function will throw in that case.
+  "
   [factory factory->graph graph->order]
   (let [graph (factory->graph factory)
         order (graph->order graph)

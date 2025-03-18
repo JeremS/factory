@@ -132,6 +132,29 @@
   factory->graph (:factory->graph api))
 
 
+(defn topsort
+  "Topological sort of a directed graph `g` made with [[factory->graph]].
+
+  Returns nil if any cycle is detected during the sort"
+  [g]
+  (g/topsort g))
+
+
+
+(defn compute-order [factory factory->graph graph->order]
+  "Returns the execution order for a factory.
+
+  The order is computated these steps:
+  1. a graph is made from the factory
+  2. the graph is analysed to give an order, usually a topological sort
+  3. the topological order is filtered for building blocks id giving us the
+     order.
+
+  The function `graph->order` must return `nil` when detecting a cycle. This
+  function will throw in that case.
+  "
+  (common/compute-order factory factory->graph graph->order))
+
 (def ^{:arglists '([factory inputs])
        :doc "
        Run a `factory` with given `inputs`.
