@@ -93,7 +93,7 @@
   - `f`: the `:fn` value for the building block
   - `deps`: list of opts
   "
-  [f & deps]
+  [f deps]
   (let [deps (parse-deps deps)]
     (assoc deps :fn f)))
 
@@ -116,8 +116,11 @@
       (apply f args))))
 
 
-(defn bb-apply [f & args]
-  (let [custom-apply (apply-order args)
-        deps (remove #{:&} args)]
-    (bb f deps custom-apply)))
+(defn bb-apply
+  "Make a building block such as:
+
+  `(bb-apply (fn [a b]..) :a :b)`"
+  [f deps]
+  (let [custom-apply (apply-order deps)]
+    (bb f [deps custom-apply])))
 

@@ -118,30 +118,53 @@
 (def api (common/run-factory api-factory api-inputs))
 
 
-(def ^{:arglists '([factory])
-       :doc "
-       Returns the names of all non building block deps from a factory.
-       "}
-  get-input-names (:get-input-names api))
+(let [get-input-names* (:get-input-names api)
+      factory->graph*  (:factory->graph api)
+      run*             (:run api)
+      factory->fn*     (:factory->fn api)
+      factory->bb*     (:factory->bb api)]
+
+  (defn get-input-names
+    "Returns the names of all non building block deps from a factory. "
+    [factory]
+    (get-input-names* factory))
 
 
-(def ^{:argslists '([factory])
-       :doc "
-       Returns the dependency graph constructed from a factory.
-       "}
-  factory->graph (:factory->graph api))
+  (defn factory->graph
+    "Returns the dependency graph constructed from a factory. "
+    [factory]
+    (factory->graph* factory))
 
 
-(defn topsort
-  "Topological sort of a directed graph `g` made with [[factory->graph]].
+  (defn run
+    "Run a `factory` with given `inputs`.
+    Building block spec:
+    - `:deps`: set of dependencies
+    - `:renames`: map of input-key -> param-key
+    - `:values`: map of values overrinding input values
+    - `:custom-apply`: function that applies the factory's fn to the
+      computated deps map"
+    [factory inputs]
+    (run* factory inputs))
 
-  Returns nil if any cycle is detected during the sort"
-  [g]
-  (g/topsort g))
+
+  (defn factory->fn
+   "Builds from a factory a function that will run it given an
+   inputs map."
+    [factory]
+    (factory->fn* factory))
 
 
+  (defn factory->bb
+    "Builds a building block from a factory . "
+    [factory]
+    (factory->bb* factory)))
 
-(defn compute-order [factory factory->graph graph->order]
+
+;; -----------------------------------------------------------------------------
+;; Utilities
+;; -----------------------------------------------------------------------------
+(defn compute-order
   "Returns the execution order for a factory.
 
   The order is computated these steps:
@@ -153,95 +176,71 @@
   The function `graph->order` must return `nil` when detecting a cycle. This
   function will throw in that case.
   "
+  [factory factory->graph graph->order]
   (common/compute-order factory factory->graph graph->order))
 
-(def ^{:arglists '([factory inputs])
-       :doc "
-       Run a `factory` with given `inputs`.
-       Building block spec:
-       - `:deps`: set of dependencies
-       - `:renames`: map of input-key -> param-key
-       - `:values`: map of values overrinding input values
-       - `:custom-apply`: function that applies the factory's fn to the
-         computated deps map
-       "}
-  run (:run api))
+
+(defn topsort
+  "Topological sort of a directed graph `g` made with [[factory->graph]].
+
+  Returns nil if any cycle is detected during the sort"
+  [g]
+  (g/topsort g))
 
 
-(def ^{:argslist '([factory])
-       :doc "
-       Builds from a factory a function that will run it given an
-       inputs map.
-       "}
-  factory->fn (:factory->fn api))
+(defn apply-order
+  "Returns function that will apply a argument map to a function that take
+  multiple arguments.
+
+  The application will follow the pattern given with `order`. An example
+  would be having the order `[:a :b :c]` to get an application such as
+  (apply f (list (:a deps) (:b deps) (:c deps))) "
+  [order]
+  (i/apply-order order))
 
 
-(def ^{:argslist '([factory])
-       :doc "
-       Builds a building block from a factory .
-       "}
-  factory->bb (:factory->bb api))
+(defn values
+  "Make a map idendified as values of the building block for use in the
+  [[bb]] constructor."
+  [& {:as vs}]
+  (i/values vs))
 
 
-;; -----------------------------------------------------------------------------
-;; Utilities
-;; -----------------------------------------------------------------------------
-(def ^{:argslist '([order])
-       :doc "
-       Returns function that will apply a argument map to a function that take
-       multiple arguments.
+(defn bb
+  "Convenience constructor for building blocks.
 
-       The application will follow the pattern given with `order`. An example
-       would be having the order `[:a :b :c]` to get an application such as
-       (apply f (list (:a deps) (:b deps) (:c deps))) "}
-  apply-order i/apply-order)
+  opts spec:
+  - keywords: added to deps
+  - sequential: added to deps
+  - values: map made with [[values]] to declare deps values in the
+    building block's deps
+  - maps : merged into renames
+  - function: last one used as custom apply
 
+  Calling:
+  (bb f :a :b {::c :c} (values {:a 1} (apply-order :a :b :c)))
 
-(def ^{:argslist '([& {:as vs}])
-       :doc "
-       Make a map idendified as values of the building block for use in
-       the [[bb]] constructor.
-       "}
-  values i/values)
-
-
-(def ^{:argslist '([f & opts])
-       :doc "
-       Convenience constructor for building blocks.
-
-       opts spec:
-       - keywords: added to deps
-       - sequential: added to deps
-       - values: map made with [[values]] to declare deps values in the
-         building block's deps
-       - maps : merged into renames
-       - function: last one used as custom apply
-
-       Calling:
-       (bb f :a :b {::c :c} (values {:a 1} (apply-order :a :b :c)))
-
-       Returns
-       {:deps #{::c :b},
-        :renames {::c :c},
-        :values {:a 1},
-        :custom-apply (apply-order [:a :b :c])
-        :fn f})
-       "}
-  bb i/bb)
+  Returns
+  {:deps #{::c :b},
+   :renames {::c :c},
+   :values {:a 1},
+   :custom-apply (apply-order [:a :b :c])
+   :fn f})"
+  [f & opts]
+  (i/bb f opts))
 
 
-(def ^{:argslists '([f & deps-names])
-       :doc "
-       Convenience function to write simple buiding blocks using regular functions
-       (as opposed to 1 map arg functions).
- 
-       `(bb-apply + :a :b)` is equivalent to `(bb + :a :b (apply-order [:a :b]))`
-  
-       `args` are what you'd put into the apply-order vector. Other conveniences
-       from [[bb]] like renames aren't supported. You can add them modifying the resulting
-       building block from this function though.
-  "}
-  bb-apply i/bb-apply)
+(defn bb-apply
+  "Convenience function to write simple buiding blocks using regular functions
+  (as opposed to 1 map arg functions).
+
+  `(bb-apply + :a :b)` is equivalent to `(bb + :a :b (apply-order [:a :b]))`
+
+  `args` are what you'd put into the apply-order vector. Other conveniences
+  from [[bb]] like renames aren't supported. You can add them modifying the resulting
+  building block from this function though."
+  [f & deps-names]
+  (i/bb-apply f deps-names))
 
 
 (tests
