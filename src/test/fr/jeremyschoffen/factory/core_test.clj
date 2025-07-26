@@ -42,10 +42,12 @@
                             :taxe-coef :c})})
 
 (def expected-res
-  {:total1 60
-   :total2 40
-   :total-bt 100
-   :total 120.0})
+  (merge
+    inputs
+    {:total1 60
+     :total2 40
+     :total-bt 100
+     :total 120.0}))
 
 
 (defdescribe example1-t
@@ -73,8 +75,10 @@
 
 
 (def expected-error-res
-  {:total1 60
-   :total2 40})
+  (merge
+    inputs
+    {:total1 60
+     :total2 40}))
 
 
 (defdescribe error-test
@@ -82,3 +86,6 @@
     (expect (= error-msg (-> error-result ex-cause ex-message)))
     (expect (= expected-error-res (-> error-result ex-data :current-state)))))
 
+(comment
+  (require '[lazytest.repl :as lr])
+  (lr/run-tests *ns*))

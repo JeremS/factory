@@ -154,14 +154,12 @@ Lexicon:
                     :compute basic-compute}))
 
 
-(defn- try-execute-bb [exec state bb-id bb order]
+(defn- try-execute-bb [exec state bb-id bb]
   (try
     (exec state bb-id bb)
     (catch Exception e
       (throw (ex-info (str "Error while running: " bb-id)
-                      {:current-state (-> state
-                                          persistent!
-                                          (u/select-keys! order))
+                      {:current-state (persistent! state)
                        :bb-id bb-id
                        :bb bb}
                       e)))))
@@ -183,14 +181,13 @@ Lexicon:
   "
   [{:keys [execute-bb]}]
   (fn execute-bbs [factory inputs order]
-    (-> (u/reduce-transient
-          (fn execute-one-bb [state bb-id]
-            (let [bb (get factory bb-id)
-                  res (try-execute-bb execute-bb state bb-id bb order)]
-              (assoc! state bb-id res)))
-          inputs
-          order)
-        (u/select-keys! order))))
+    (u/reduce-transient
+      (fn execute-one-bb [state bb-id]
+        (let [bb (get factory bb-id)
+              res (try-execute-bb execute-bb state bb-id bb)]
+          (assoc! state bb-id res)))
+      inputs
+      order)))
 
 (def ^:private execute-bbs
   (make-execute-bbs {:execute-bb execute-bb}))
@@ -254,7 +251,7 @@ Lexicon:
      :c -5})
 
   (def ex-res
-    {:d 4, :e -1, :f :no-deps,})
+    {:a 1 :b 3 :c -5 :d 4, :e -1, :f :no-deps,})
 
   (run-factory ex-factory inputs)
   := ex-res
@@ -319,12 +316,19 @@ Lexicon:
     (ex-factory->bb ex-factory))
 
   (run-factory {:res ex-bb} inputs)
-  := {:res ex-res})
+  := (merge inputs {:res ex-res}))
 
 
 ;; -----------------------------------------------------------------------------
 ;; Utilities
 ;; -----------------------------------------------------------------------------
+(defn ex->current-state
+  "Get the current state of a factory run from an error."
+  [ex]
+  (-> ex ex-data :current-state))
+
+
+
 (defn make-keep-bbs
   "Makes a function that keeps in a factory building blocks whose ids are given
   and the building blocks on which they transitively depend."
