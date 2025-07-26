@@ -30,21 +30,27 @@
 ;; -----------------------------------------------------------------------------
 ;; Compute function
 ;; -----------------------------------------------------------------------------
+(defn apply-deps-options
+  "Takes a building block and the gathered deps and applies key renames and
+  predefined values."
+  [bb deps]
+  (let [{:keys [renames values]} bb]
+    (cond-> deps
+      renames (set/rename-keys renames)
+      values  (merge values))))
+
+
 (defn compute
   "The compute function used in this implementation.
 
   Allows for the use of the `:renames`, `values`, `apply-order` keys in
   building blocks definitions."
   [_bb-id bb deps _current-value]
-  (let [{f :fn
-         :keys [renames values custom-apply]} bb
-        deps (cond-> deps
-               renames (set/rename-keys renames)
-               values  (merge values))]
+  (let [{f :fn :keys [custom-apply]} bb
+        deps (apply-deps-options bb deps)]
     (if custom-apply
       (custom-apply f deps)
       (f deps))))
-
 
 ;; -----------------------------------------------------------------------------
 ;; Building blocks used to make an api
@@ -145,6 +151,7 @@
     - `:custom-apply`: function that applies the factory's fn to the
       computated deps map"
     [factory inputs]
+    {:pre [(map? inputs)]}
     (run* factory inputs))
 
 
@@ -276,10 +283,12 @@
   := #{:a :b :c ::name}
 
   (def expected-res
-    {:d 4, :e -1, :f :no-deps,
-     :e2 9
-     :r :toto
-     :v :titi})
+    (merge
+      inputs
+      {:d 4, :e -1, :f :no-deps,
+       :e2 9
+       :r :toto
+       :v :titi}))
 
   (run ex-factory inputs)
   := expected-res
@@ -290,12 +299,18 @@
   := expected-res
 
   (run {:res (factory->bb ex-factory)} inputs)
-  := {:res expected-res})
+  := (merge inputs {:res expected-res}))
 
 
 ;; -----------------------------------------------------------------------------
 ;; Utilities
 ;; -----------------------------------------------------------------------------
+(defn ex->current-state
+  "Get the current state of a factory run from an error."
+  [run-error]
+  (common/ex->current-state run-error))
+
+
 (defn ->getter
   "Makes a building block that just extract a value at a key `k` from another
   building block's result."
