@@ -72,8 +72,8 @@
      :middleware :dm
      :port 8080})
 
-  (def started (start system system-conf))
-  (def stopped (stop started)))
+  (def started (start! system system-conf))
+  (def stopped (stop! system started)))
 
 
 ;; -----------------------------------------------------------------------------
