@@ -158,13 +158,14 @@ Lexicon:
   (try
     (exec state bb-id bb)
     (catch Exception e
-      (throw (ex-info (str "Error while running: " bb-id)
+      (throw (ex-info (str "Error while running building block: " bb-id)
                       {:current-state (persistent! state)
                        :bb-id bb-id
                        :bb bb}
                       e)))))
 
 
+;; TODO: docstring out of date
 (defn make-execute-bbs
   "Make a function that will execute a factory.
 

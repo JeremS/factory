@@ -9,9 +9,9 @@
 
 (defn compute-start [_bb-id bb deps _current-value]
   (let [start (:start! bb)]
-    (->> deps
-         (c/apply-deps-options bb)
-         start)))
+    (-> (c/apply-deps-options bb deps)
+        (with-meta {:bb bb})
+        start)))
 
 
 (defn compute-stop [_bb-id bb _deps current-value]
@@ -208,7 +208,3 @@
   (start-system! !system)
   (restart-system! !system factory inputs)
   (stop-system! !system))
-
-
-
-
