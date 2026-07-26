@@ -1,34 +1,34 @@
 {:paths ["src/main"]
 
- :deps {com.hyperfiddle/rcf {:mvn/version "20220926-202227"}}
+ :deps {com.hyperfiddle/rcf {:mvn/version "20260626-131050"}}
 
- :aliases {:clj {:extra-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}
+ :aliases {:clj {:extra-deps {org.clojure/clojure {:mvn/version "1.12.5"}}}
 
            :debug {:classpath-overrides {org.clojure/clojure nil}
-                   :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.0-3"}
-                                com.github.flow-storm/flow-storm-dbg {:mvn/version "4.1.1"}}
+                   :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.5-1"}
+                                com.github.flow-storm/flow-storm-dbg {:mvn/version "4.7.0"}}
                    :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
                               "-Dclojure.storm.instrumentOnlyPrefixes=fr.jeremyschoffen.factory"]}
 
 
            :dev {:extra-paths ["src/dev"]
-                 :extra-deps {io.github.tonsky/clj-reload {:mvn/version "0.7.1"}
-                              io.github.paintparty/fireworks {:mvn/version "0.10.4"}}}
+                 :extra-deps {io.github.tonsky/clj-reload {:mvn/version "1.0.0"}
+                              io.github.paintparty/fireworks {:mvn/version "0.21.3"}}}
 
 
            :additional-libs {:extra-deps
-                              {funcool/promesa {:mvn/version "11.0.678"}
-                               manifold/manifold {:mvn/version "0.4.3"}}}
+                              {funcool/promesa {:mvn/version "12.0.0"}
+                               manifold/manifold {:mvn/version "0.5.0"}}}
 
-           :nrepl {:extra-deps {nrepl/nrepl      {:mvn/version "1.3.1"}
-                                cider/cider-nrepl {:mvn/version "0.52.0"}}}
+           :nrepl {:extra-deps {nrepl/nrepl      {:mvn/version "1.7.0"}
+                                cider/cider-nrepl {:mvn/version "0.62.2"}}}
 
 
            :docs {:extra-paths ["resources" "src/docs"]
-                  :extra-deps {org.scicloj/clay {:mvn/version "2-beta28"}
-                               io.github.nextjournal/clerk {:mvn/version "0.17.1102"}
-                               babashka/fs {:mvn/version "0.5.24"}}}
+                  :extra-deps {org.scicloj/clay {:mvn/version "2.0.17"}
+                               io.github.nextjournal/clerk {:mvn/version "0.18.1158"}
+                               babashka/fs {:mvn/version "0.5.34"}}}
 
 
            :test {:extra-paths ["src/test"]
-                  :extra-deps {io.github.noahtheduke/lazytest {:mvn/version "1.5.0"}}}}}
+                  :extra-deps {io.github.noahtheduke/lazytest {:mvn/version "2.0.0"}}}}}
